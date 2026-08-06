@@ -388,6 +388,11 @@
 
         let currentHub = 'All';
 
+        function getUrlParam(param) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(param);
+        }
+
         function initializeView() {
             const hubSelector = document.getElementById('hubSelector');
             const allBtn = document.createElement('button');
@@ -405,7 +410,13 @@
                 hubSelector.appendChild(btn);
             });
 
-            renderEngineers();
+            // Check if hub parameter is in URL
+            const hubFromUrl = getUrlParam('hub');
+            if (hubFromUrl && hubsData[hubFromUrl]) {
+                switchHub(hubFromUrl);
+            } else {
+                renderEngineers();
+            }
         }
 
         function switchHub(hubName) {
