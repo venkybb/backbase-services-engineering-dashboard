@@ -1,0 +1,511 @@
+{
+  "report_date": "2026-08-04",
+  "report_period": "July 23, 2026",
+  "hubs": {
+    "Europe": {
+      "hub_name": "Europe",
+      "region": "Europe",
+      "summary_metrics": {
+        "quality_framework_scope": 100,
+        "development_quality": 66,
+        "defect_escape_rate": 28,
+        "api_tracker_installation": 90,
+        "overall_status": "Green"
+      },
+      "projects": [
+        {
+          "project_id": "36358",
+          "project_name": "Danske",
+          "engineering_manager": "Adam Kopycinski",
+          "quality_metrics_score": 1,
+          "der_score": 0,
+          "velocity_burndown": 0,
+          "defect_escape_rate": 0,
+          "api_availability": 0,
+          "overall_status": "Amber",
+          "notes": "Consultancy mode, client-led project"
+        },
+        {
+          "project_id": "31064",
+          "project_name": "Arbuthnot Latham",
+          "engineering_manager": "Adam Kopycinski",
+          "quality_metrics_score": 0.625,
+          "der_score": 0.18,
+          "velocity_burndown": 0,
+          "defect_escape_rate": -0.5,
+          "api_availability": 1,
+          "overall_status": "Amber",
+          "notes": "On hold due to 2026.09 LTS requirement"
+        },
+        {
+          "project_id": "9764",
+          "project_name": "Weatherbys",
+          "engineering_manager": "Piotr M\u0105dry",
+          "quality_metrics_score": 0.75,
+          "der_score": 0.19,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 0.5,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "13209",
+          "project_name": "GHIB",
+          "engineering_manager": "Rainier Jordaan",
+          "quality_metrics_score": 0.454545,
+          "der_score": 0.454545,
+          "velocity_burndown": 0,
+          "defect_escape_rate": -0.5,
+          "api_availability": 1,
+          "overall_status": "Amber"
+        },
+        {
+          "project_id": "13899",
+          "project_name": "Jet Bank Albania",
+          "engineering_manager": "Piotr Kaleta",
+          "quality_metrics_score": 0.55,
+          "der_score": 0.31,
+          "velocity_burndown": 0,
+          "defect_escape_rate": -0.5,
+          "api_availability": 1,
+          "overall_status": "Amber",
+          "notes": "Scope changes due to investors"
+        }
+      ]
+    },
+    "Africa": {
+      "hub_name": "Africa",
+      "region": "Africa",
+      "summary_metrics": {
+        "quality_framework_scope": 100,
+        "development_quality": 84,
+        "defect_escape_rate": 6,
+        "api_tracker_installation": 50,
+        "overall_status": "Green"
+      },
+      "projects": [
+        {
+          "project_id": "7665",
+          "project_name": "CIH - Origination",
+          "engineering_manager": "Sudhakar Krovi",
+          "quality_metrics_score": 0.892857,
+          "der_score": 0.06,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green",
+          "notes": "Updated 23rd Jan"
+        },
+        {
+          "project_id": "18525",
+          "project_name": "SBN",
+          "engineering_manager": "Rainier Jordaan",
+          "quality_metrics_score": 0.785714,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": -0.5,
+          "overall_status": "Green"
+        }
+      ]
+    },
+    "North America": {
+      "hub_name": "North America",
+      "region": "North America",
+      "summary_metrics": {
+        "quality_framework_scope": 100,
+        "development_quality": 86,
+        "defect_escape_rate": 11,
+        "api_tracker_installation": 100,
+        "overall_status": "Green"
+      },
+      "projects": [
+        {
+          "project_id": "1071",
+          "project_name": "EverBank Commercial",
+          "engineering_manager": "Srinivas Kartheek Turlapati",
+          "quality_metrics_score": 0.769231,
+          "der_score": 0.1216,
+          "velocity_burndown": 1,
+          "defect_escape_rate": -0.5,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "1071",
+          "project_name": "EverBank Back Office",
+          "engineering_manager": "Srinivas Kartheek Turlapati",
+          "quality_metrics_score": 0.85,
+          "der_score": 0.1056,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 0,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "4638",
+          "project_name": "NBC Mobile",
+          "engineering_manager": "Tomasz Jakubas",
+          "quality_metrics_score": 0.7,
+          "der_score": 0.09,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 0,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "8904",
+          "project_name": "Alliant Retail",
+          "engineering_manager": "Sateesh Dommeti",
+          "quality_metrics_score": 0.892857,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green",
+          "notes": "API Tracker ready, API issues still visible"
+        },
+        {
+          "project_id": "6722",
+          "project_name": "Eastern Business",
+          "engineering_manager": "Arshad Khan",
+          "quality_metrics_score": 0.892857,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "6722",
+          "project_name": "Eastern Retail",
+          "engineering_manager": "Arshad Khan",
+          "quality_metrics_score": 0.892857,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green",
+          "notes": "Paymentus Issue"
+        }
+      ]
+    },
+    "Middle East": {
+      "hub_name": "Middle East",
+      "region": "Middle East",
+      "summary_metrics": {
+        "quality_framework_scope": 100,
+        "development_quality": 86,
+        "defect_escape_rate": 3,
+        "api_tracker_installation": 100,
+        "overall_status": "Green"
+      },
+      "projects": [
+        {
+          "project_id": "9774",
+          "project_name": "Banque Saudi Fransi",
+          "engineering_manager": "Vinay Uddandam",
+          "quality_metrics_score": 0.65,
+          "der_score": null,
+          "velocity_burndown": 0.5,
+          "defect_escape_rate": 0,
+          "api_availability": 1,
+          "overall_status": "Amber"
+        },
+        {
+          "project_id": "9771",
+          "project_name": "Masraf Al Rayan",
+          "engineering_manager": "Sarath Chittibomma V",
+          "quality_metrics_score": 1,
+          "der_score": 0.034,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "30437",
+          "project_name": "Bank Muscat",
+          "engineering_manager": "Damodar Seepana Veepin Kumar",
+          "quality_metrics_score": 0.785714,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 0,
+          "api_availability": 1,
+          "overall_status": "Green"
+        }
+      ]
+    },
+    "LATAM": {
+      "hub_name": "LATAM",
+      "region": "LATAM",
+      "summary_metrics": {
+        "quality_framework_scope": 100,
+        "development_quality": 73,
+        "defect_escape_rate": 15,
+        "api_tracker_installation": 100,
+        "overall_status": "Amber"
+      },
+      "projects": [
+        {
+          "project_id": "7045",
+          "project_name": "Bineo",
+          "engineering_manager": "Jos\u00e9 Luis Vel\u00e1zquez Lara",
+          "quality_metrics_score": 1,
+          "der_score": 0.2,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "7871",
+          "project_name": "Banco Caja Social",
+          "engineering_manager": "Rodrigo Arroyo",
+          "quality_metrics_score": 0.863636,
+          "der_score": 0.1,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "13619",
+          "project_name": "BNCR - Retail (Build)",
+          "engineering_manager": "Gustavo Hasegawa",
+          "quality_metrics_score": 0.333333,
+          "der_score": null,
+          "velocity_burndown": -0.5,
+          "defect_escape_rate": -1,
+          "api_availability": 1,
+          "overall_status": "Red"
+        }
+      ]
+    },
+    "Asia": {
+      "hub_name": "Asia",
+      "region": "Asia",
+      "summary_metrics": {
+        "quality_framework_scope": 50,
+        "development_quality": 83,
+        "defect_escape_rate": 9,
+        "api_tracker_installation": 100,
+        "overall_status": "Amber"
+      },
+      "projects": [
+        {
+          "project_id": "23058",
+          "project_name": "HDFC",
+          "engineering_manager": "Kiran Kumar et al",
+          "quality_metrics_score": 0.653846,
+          "der_score": 0.08,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "17892",
+          "project_name": "BDO Pay",
+          "engineering_manager": "Eswaramoorthi Thanaraj",
+          "quality_metrics_score": 0.884615,
+          "der_score": 0.03,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "17892",
+          "project_name": "BDO Online",
+          "engineering_manager": "Malay Jain",
+          "quality_metrics_score": 0.769231,
+          "der_score": 0.15,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "22181",
+          "project_name": "East West Bank Retail",
+          "engineering_manager": "Koondla Amaranarayanachowdary",
+          "quality_metrics_score": 0.75,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 0,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "22181",
+          "project_name": "East West Bank Business",
+          "engineering_manager": "Koondla Amaranarayanachowdary",
+          "quality_metrics_score": 0.75,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 0,
+          "overall_status": "Green"
+        },
+        {
+          "project_id": "21993",
+          "project_name": "China Bank of Philippines",
+          "engineering_manager": "Divya Appidi",
+          "quality_metrics_score": 0.85,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": 1,
+          "api_availability": 1,
+          "overall_status": "Green"
+        }
+      ]
+    },
+    "ANZ": {
+      "hub_name": "ANZ",
+      "region": "ANZ",
+      "summary_metrics": {
+        "quality_framework_scope": 100,
+        "development_quality": 74,
+        "defect_escape_rate": 9,
+        "api_tracker_installation": 0,
+        "overall_status": "Green"
+      },
+      "projects": [
+        {
+          "project_id": "21227",
+          "project_name": "MyState MSE",
+          "engineering_manager": "Krishna Kanth Vishnubhotla",
+          "quality_metrics_score": 0.681818,
+          "der_score": null,
+          "velocity_burndown": 1,
+          "defect_escape_rate": -0.5,
+          "api_availability": -1,
+          "overall_status": "Amber"
+        },
+        {
+          "project_id": "21227",
+          "project_name": "MyState DO",
+          "engineering_manager": "Krishna Kanth Vishnubhotla",
+          "quality_metrics_score": 0.863636,
+          "der_score": 0.17,
+          "velocity_burndown": 1,
+          "defect_escape_rate": -0.5,
+          "api_availability": 1,
+          "overall_status": "Green"
+        }
+      ]
+    },
+    "EAB Business Banking": {
+      "hub_name": "Eastern Bank Business Banking",
+      "region": "North America",
+      "summary_metrics": {
+        "sprint_period": "Sprint 28-30",
+        "report_date": "July 23, 2026",
+        "security_score": 100,
+        "customer_pulse": "Good",
+        "team_health": "Good"
+      },
+      "projects": [
+        {
+          "project_name": "Eastern Bank SME Banking MVP1",
+          "project_type": "Web & Mobile Digital Business Banking",
+          "contract_type": "Fixed",
+          "lead": "Backbase",
+          "live_status": "Not yet",
+          "go_live_date": "Aug 2026",
+          "quality_metrics": {
+            "sprint_28": {
+              "velocity": 87.5,
+              "efficiency_committed": 103,
+              "volatility": "40%",
+              "defects_fixed_raised": "14/23",
+              "customer_pulse": "Good",
+              "security": "100%"
+            },
+            "sprint_29": {
+              "velocity": 74.5,
+              "efficiency_committed": 81.5,
+              "volatility": "68%",
+              "defects_fixed_raised": "21/32",
+              "customer_pulse": "Good",
+              "security": "100%"
+            },
+            "sprint_30": {
+              "velocity": 93,
+              "efficiency_committed": 125,
+              "volatility": "9%",
+              "defects_fixed_raised": "7/14",
+              "customer_pulse": "Good",
+              "security": "100%"
+            }
+          },
+          "primary_metrics": {
+            "defect_escape_rate": "0.9%",
+            "automation_rate": {
+              "web_overall": "85% (3% up)",
+              "mobile_overall": "82% (6% up)"
+            },
+            "ai_adoption": "100%"
+          }
+        }
+      ]
+    },
+    "EAB Retail Banking": {
+      "hub_name": "Eastern Bank Retail Banking",
+      "region": "North America",
+      "summary_metrics": {
+        "sprint_period": "Sprint 41-43",
+        "report_date": "July 23, 2026",
+        "security_score": 100,
+        "customer_pulse": "Good",
+        "team_health": "Good"
+      },
+      "projects": [
+        {
+          "project_name": "Eastern Bank DAO & Retail Banking",
+          "project_type": "Web & Mobile Digital Business Banking",
+          "contract_type": "Fixed",
+          "lead": "Backbase",
+          "live_status": "Live with Release 14.10.0",
+          "go_live_date": "Nov 2026 (2025.09-LTS)",
+          "quality_metrics": {
+            "sprint_41": {
+              "velocity": 92.5,
+              "efficiency_committed": 80.5,
+              "volatility": "16%",
+              "defects_fixed_raised": "34/37",
+              "customer_pulse": "Good",
+              "security": "100%"
+            },
+            "sprint_42": {
+              "velocity": 52,
+              "efficiency_committed": 128,
+              "volatility": "4%",
+              "defects_fixed_raised": "19/22",
+              "customer_pulse": "Good",
+              "security": "100%"
+            },
+            "sprint_43": {
+              "velocity": 75.5,
+              "efficiency_committed": 125.5,
+              "volatility": "3%",
+              "defects_fixed_raised": "29/36",
+              "customer_pulse": "Good",
+              "security": "100%"
+            }
+          },
+          "primary_metrics": {
+            "defect_escape_rate": "10.37%",
+            "automation_rate": {
+              "web": "92% (87% pass rate)",
+              "ios": "82% (75% pass rate, 30% up)",
+              "android": "89% (81% pass rate)"
+            },
+            "ai_adoption": "100%"
+          }
+        }
+      ]
+    }
+  }
+}

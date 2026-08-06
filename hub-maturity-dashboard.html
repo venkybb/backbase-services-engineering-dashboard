@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Engineering Maturity Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Roboto, sans-serif;
+            background: #f5f6f8;
+            color: #2C3E50;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 28px 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow-x: hidden;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0F3E5C;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #7F8C8D;
+            margin-bottom: 20px;
+        }
+
+        .hub-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hub-btn {
+            padding: 8px 14px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #2C3E50;
+        }
+
+        .hub-btn:hover {
+            border-color: #00A8A8;
+            background: #f0f9f9;
+        }
+
+        .hub-btn.active {
+            background: linear-gradient(135deg, #0F3E5C 0%, #00A8A8 100%);
+            color: white;
+            border-color: #00A8A8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #00A8A8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #0F3E5C 0%, #00A8A8 100%);
+            color: white;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-body {
+            padding: 12px 14px;
+            overflow-x: hidden;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-name {
+            font-weight: 500;
+            color: #0F3E5C;
+            flex: 0 1 auto;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: 0;
+        }
+
+        .badge-excellent {
+            background: #C3E6CB;
+            color: #0B5E15;
+        }
+
+        .badge-good {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .badge-satisfactory {
+            background: #E7F3E7;
+            color: #1E6B1E;
+        }
+
+        .badge-improvement {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .badge-poor {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        .badge-settled {
+            background: #D1ECF1;
+            color: #0C5460;
+        }
+
+        .badge-not-settled {
+            background: #F8E9E6;
+            color: #7A3C2D;
+        }
+
+        .badge-capacity {
+            background: #E9ECEF;
+            color: #383D41;
+        }
+
+        .maturity-status {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #0F3E5C;
+            font-size: 13px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .status-poor {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        .status-improvement {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-good {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-excellent {
+            background: #C3E6CB;
+            color: #0B5E15;
+        }
+
+        .score-display {
+            font-weight: 600;
+            color: #0F3E5C;
+            font-size: 13px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            margin-left: 0;
+            margin-right: 0;
+            font-size: 12px;
+            color: #7F8C8D;
+            padding: 0 20px;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="hub-dashboard-v2.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="header">
+            <div class="title" id="pageTitle">Hub Engineering Maturity</div>
+            <div class="subtitle" id="pageSubtitle">Key metrics and readiness across engineering disciplines</div>
+
+            <div class="hub-selector" id="hubSelector"></div>
+        </div>
+
+        <div class="maturity-status" id="maturityStatus"></div>
+
+        <div class="grid" id="maturityGrid"></div>
+
+        <div class="footer">
+            Engineering Maturity Dashboard • Source: Hub Engineering Maturity Assessment
+        </div>
+    </div>
+
+    <script>
+        const maturityData = {
+            "Way of Working": {
+                "Quality Metrics Score": {
+                    "Europe": "Good",
+                    "Asia": "Satisfactory",
+                    "ANZ": "Good",
+                    "Africa": "N/A",
+                    "Middle East": "Good",
+                    "North America": "Good",
+                    "LATAM": "Good"
+                },
+                "Technology Maturity Score": {
+                    "Europe": "Good",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Satisfactory",
+                    "Africa": "Need Improvement",
+                    "Middle East": "Good",
+                    "North America": "Good",
+                    "LATAM": "Satisfactory"
+                },
+                "Project Security Metrics Score": {
+                    "Europe": "Excellent",
+                    "Asia": "Good",
+                    "ANZ": "Good",
+                    "Africa": "Satisfactory",
+                    "Middle East": "Good",
+                    "North America": "Good",
+                    "LATAM": "Good"
+                },
+                "Certification Score": {
+                    "Europe": "Good",
+                    "Asia": "Satisfactory",
+                    "ANZ": "Good",
+                    "Africa": "N/A",
+                    "Middle East": "Good",
+                    "North America": "Good",
+                    "LATAM": "Good"
+                }
+            },
+            "Development Leadership": {
+                "Security Engineer Lead Coverage": {
+                    "Europe": "Good",
+                    "Asia": "Good",
+                    "ANZ": "Satisfactory",
+                    "Africa": "Need Improvement",
+                    "Middle East": "Need Improvement",
+                    "North America": "Satisfactory",
+                    "LATAM": "Need Improvement"
+                },
+                "DevOps Lead Coverage": {
+                    "Europe": "Good",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Good",
+                    "Africa": "Good",
+                    "Middle East": "Good",
+                    "North America": "Satisfactory",
+                    "LATAM": "Good"
+                },
+                "BE Lead Coverage": {
+                    "Europe": "Need Improvement",
+                    "Asia": "Good",
+                    "ANZ": "Satisfactory",
+                    "Africa": "Need Improvement",
+                    "Middle East": "Need Improvement",
+                    "North America": "Satisfactory",
+                    "LATAM": "Satisfactory"
+                },
+                "Web Lead Coverage": {
+                    "Europe": "Good",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Good",
+                    "Africa": "Excellent",
+                    "Middle East": "Excellent",
+                    "North America": "Good",
+                    "LATAM": "Need Improvement"
+                },
+                "iOS Lead Coverage": {
+                    "Europe": "Good",
+                    "Asia": "Good",
+                    "ANZ": "Satisfactory",
+                    "Africa": "Need Improvement",
+                    "Middle East": "Need Improvement",
+                    "North America": "Satisfactory",
+                    "LATAM": "Need Improvement"
+                },
+                "Android Lead Coverage": {
+                    "Europe": "Need Improvement",
+                    "Asia": "Good",
+                    "ANZ": "Good",
+                    "Africa": "Good",
+                    "Middle East": "Good",
+                    "North America": "Satisfactory",
+                    "LATAM": "Good"
+                },
+                "QA Lead Coverage": {
+                    "Europe": "Good",
+                    "Asia": "Good",
+                    "ANZ": "Satisfactory",
+                    "Africa": "Need Improvement",
+                    "Middle East": "Need Improvement",
+                    "North America": "Good",
+                    "LATAM": "Need Improvement"
+                },
+                "QA Automation Skills": {
+                    "Europe": "Good",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Good",
+                    "Africa": "Good",
+                    "Middle East": "Good",
+                    "North America": "Satisfactory",
+                    "LATAM": "Need Improvement"
+                }
+            },
+            "Management": {
+                "Engineering Connect Group": {
+                    "Europe": "Settled",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Settled"
+                },
+                "Chapter Meetings": {
+                    "Europe": "Need Improvement",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Need Improvement"
+                },
+                "Technology Alignment": {
+                    "Europe": "Not Settled",
+                    "Asia": "Settled",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Settled"
+                },
+                "Appointed ED": {
+                    "Europe": "Settled",
+                    "Asia": "Settled",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Not Settled"
+                },
+                "EM Capacity": {
+                    "Europe": "Need Improvement",
+                    "Asia": "Need Improvement",
+                    "ANZ": "Good",
+                    "Africa": "Need Improvement",
+                    "Middle East": "Need Improvement",
+                    "North America": "Good",
+                    "LATAM": "Excellent"
+                },
+                "Monthly QF Review": {
+                    "Europe": "Settled",
+                    "Asia": "Settled",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Settled"
+                },
+                "Google Groups": {
+                    "Europe": "Settled",
+                    "Asia": "Settled",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Settled"
+                },
+                "Hours Approval Flow Settled": {
+                    "Europe": "Settled",
+                    "Asia": "Settled",
+                    "ANZ": "Settled",
+                    "Africa": "Settled",
+                    "Middle East": "Settled",
+                    "North America": "Settled",
+                    "LATAM": "Settled"
+                }
+            }
+        };
+
+        const hubs = ["Europe", "Asia", "ANZ", "Africa", "Middle East", "North America", "LATAM"];
+        let currentHub = "Europe";
+        let filterByHub = null;
+
+        // Check if hub parameter is in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('hub')) {
+            filterByHub = urlParams.get('hub');
+            currentHub = filterByHub;
+        }
+
+        function getBadgeClass(value) {
+            if (!value || value === "N/A") return "badge-capacity";
+            const lower = value.toLowerCase();
+            if (lower.includes("excellent")) return "badge-excellent";
+            if (lower.includes("good")) return "badge-good";
+            if (lower.includes("satisfactory")) return "badge-satisfactory";
+            if (lower.includes("improvement")) return "badge-improvement";
+            if (lower.includes("poor")) return "badge-poor";
+            if (lower.includes("settled") && !lower.includes("not")) return "badge-settled";
+            if (lower.includes("not settled")) return "badge-not-settled";
+            if (lower.includes("capacity")) return "badge-capacity";
+            return "badge-capacity";
+        }
+
+        function getScoreValue(value) {
+            if (!value || value === "N/A") return 0;
+            const lower = value.toLowerCase();
+            if (lower.includes("excellent")) return 100;
+            if (lower.includes("good")) return 90;
+            if (lower.includes("satisfactory")) return 80;
+            if (lower.includes("settled") && !lower.includes("not")) return 85;
+            if (lower.includes("improvement")) return 50;
+            if (lower.includes("poor")) return 20;
+            if (lower.includes("not settled")) return 40;
+            if (lower.includes("capacity")) return 30;
+            return 0;
+        }
+
+        function getMaturityStatus(hub) {
+            let totalScore = 0;
+            let count = 0;
+
+            for (const [category, metrics] of Object.entries(maturityData)) {
+                for (const [metricName, values] of Object.entries(metrics)) {
+                    const value = values[hub] || "N/A";
+                    totalScore += getScoreValue(value);
+                    count++;
+                }
+            }
+
+            const percentage = count > 0 ? (totalScore / count) : 0;
+
+            let status = "Poor";
+            let statusClass = "status-poor";
+
+            if (percentage > 90) {
+                status = "Excellent";
+                statusClass = "status-excellent";
+            } else if (percentage > 70) {
+                status = "Good";
+                statusClass = "status-good";
+            } else if (percentage >= 60) {
+                status = "Need Improvement";
+                statusClass = "status-improvement";
+            }
+
+            return {
+                status,
+                statusClass,
+                percentage: Math.round(percentage)
+            };
+        }
+
+        function initializeView() {
+            const hubSelector = document.getElementById('hubSelector');
+            const pageTitle = document.getElementById('pageTitle');
+            const pageSubtitle = document.getElementById('pageSubtitle');
+
+            if (filterByHub) {
+                // Hide hub selector if filtered to single hub
+                hubSelector.style.display = 'none';
+                pageTitle.textContent = `${filterByHub} - Engineering Maturity`;
+                pageSubtitle.textContent = 'Key metrics and readiness for this hub';
+            } else {
+                // Show hub selector with all hubs
+                hubs.forEach(hub => {
+                    const btn = document.createElement('button');
+                    btn.className = 'hub-btn' + (hub === currentHub ? ' active' : '');
+                    btn.textContent = hub;
+                    btn.onclick = () => switchHub(hub);
+                    hubSelector.appendChild(btn);
+                });
+            }
+
+            renderMaturity();
+        }
+
+        function switchHub(hub) {
+            currentHub = hub;
+            document.querySelectorAll('.hub-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === hub) {
+                    btn.classList.add('active');
+                }
+            });
+            renderMaturity();
+        }
+
+        function renderMaturity() {
+            const statusElement = document.getElementById('maturityStatus');
+            const maturityData_status = getMaturityStatus(currentHub);
+
+            statusElement.innerHTML = `
+                <div class="status-label">Hub Maturity Status:</div>
+                <div class="status-badge ${maturityData_status.statusClass}">${maturityData_status.status}</div>
+                <div class="score-display">${maturityData_status.percentage}% Overall Score</div>
+            `;
+
+            const grid = document.getElementById('maturityGrid');
+            let html = '';
+
+            for (const [category, metrics] of Object.entries(maturityData)) {
+                html += `<div class="category-card">
+                    <div class="category-header">${category}</div>
+                    <div class="category-body">`;
+
+                for (const [metricName, values] of Object.entries(metrics)) {
+                    const value = values[currentHub] || "N/A";
+                    const badgeClass = getBadgeClass(value);
+                    html += `<div class="metric">
+                        <div class="metric-name">${metricName}</div>
+                        <div class="metric-badge ${badgeClass}">${value}</div>
+                    </div>`;
+                }
+
+                html += '</div></div>';
+            }
+
+            grid.innerHTML = html;
+        }
+
+        window.addEventListener('load', initializeView);
+    </script>
+</body>
+</html>

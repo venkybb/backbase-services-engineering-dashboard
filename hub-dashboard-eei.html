@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Quality Dashboard - Engineering Excellence Index Scores</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --red: #E74C3C;
+            --amber: #F39C12;
+            --green: #27AE60;
+            --primary: #0F3E5C;
+            --secondary: #00A8A8;
+            --light: #F8F9FA;
+            --border: #E0E0E0;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Roboto, sans-serif;
+            background: #f5f6f8;
+            color: var(--text);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        .rag-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .rag-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .rag-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .rag-status {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .rag-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rag-indicator.red { background: var(--red); }
+        .rag-indicator.amber { background: var(--amber); }
+        .rag-indicator.green { background: var(--green); }
+
+        .rag-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary-change {
+            font-size: 12px;
+            margin-top: 4px;
+            color: var(--text-light);
+        }
+
+        .eei-score-card {
+            background: linear-gradient(135deg, #ECF0F1 0%, #FFFFFF 100%);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            margin-right: 12px;
+        }
+
+        .eei-score-card strong {
+            font-size: 32px;
+            display: block;
+            margin: 8px 0;
+        }
+
+        .eei-score-card.green-score {
+            border-color: var(--green);
+            background: #d4edda;
+        }
+
+        .eei-score-card.amber-score {
+            border-color: var(--amber);
+            background: #fff3cd;
+        }
+
+        .eei-score-card.red-score {
+            border-color: var(--red);
+            background: #f8d7da;
+        }
+
+        .hub-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 18px;
+            letter-spacing: 0.2px;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 18px;
+        }
+
+        .hub-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .hub-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .hub-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 14px 16px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .hub-name {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .hub-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .hub-content {
+            padding: 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .project-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            gap: 12px;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-item:hover {
+            background: #f9f9f9;
+        }
+
+        .project-name {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+            color: var(--text);
+            min-width: 0;
+        }
+
+        .project-name > div {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-name div:first-of-type {
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .project-name div:last-of-type {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .rag-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rag-dot.green { background: var(--green); }
+        .rag-dot.amber { background: var(--amber); }
+        .rag-dot.red { background: var(--red); }
+
+        .project-status {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .eei-score {
+            font-weight: 700;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            background: #f0f0f0;
+            min-width: 50px;
+        }
+
+        .eei-score.green-score {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .eei-score.amber-score {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .eei-score.red-score {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .view-details {
+            background: var(--primary);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .view-details:hover {
+            background: var(--secondary);
+        }
+
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            clear: both;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .modal-row:last-child {
+            border-bottom: none;
+        }
+
+        .modal-row span:first-child {
+            font-weight: 500;
+        }
+
+        .metric-breakdown {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+
+        .metric-name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .metric-weight {
+            color: #888;
+            font-size: 11px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .total-eei {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .hub-eei-summary {
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hub-eei-title {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .hub-eei-score {
+            font-size: 18px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="rag-section">
+            <div class="rag-header">
+                <div class="rag-title">Engineering Excellence Index Scores by Hub</div>
+                <div class="rag-status">
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByEEIStatus('green')">
+                        <div class="rag-indicator green" id="greenCount">0</div>
+                        <div class="rag-label">Green</div>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByEEIStatus('amber')">
+                        <div class="rag-indicator amber" id="amberCount">0</div>
+                        <div class="rag-label">Amber</div>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByEEIStatus('red')">
+                        <div class="rag-indicator red" id="redCount">0</div>
+                        <div class="rag-label">Red</div>
+                    </div>
+                    <div style="text-align: center; cursor: pointer; margin-left: 16px;" onclick="filterByEEIStatus('all')">
+                        <div class="rag-indicator" style="background: #95A5A6;" id="allCount">0</div>
+                        <div class="rag-label">All</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Total Projects Tracked</div>
+                    <div class="summary-value" id="totalProjects">30</div>
+                    <div class="summary-change">With Index metrics</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--green);"></div>
+                    <span>On Target (≥80)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--amber);"></div>
+                    <span>Below Target (50-79)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--red);"></div>
+                    <span>Critical (<50)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hub-section">
+            <div class="section-title">Engineering Hubs - Engineering Excellence Index Scores by Project</div>
+            <div class="hub-grid" id="hubGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2 class="modal-title" id="modalTitle">Project Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const hubsData = [
+            {
+                name: "Europe",
+                engineers: 60,
+                projects: 4,
+                projects_list: [
+                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", sfAccount: "31064", security: "1", der: "18%", gates: "62.5%", api: "100%", velocity: "78%" },
+                    { name: "Weatherbys", em: "Piotr Mądry", sfAccount: "9764", security: "1", der: "19%", gates: "75%", api: "50%", velocity: "82%" },
+                    { name: "GHIB", em: "Rainier Jordaan", sfAccount: "13209", security: "N/A", der: "45%", gates: "45%", api: "100%", velocity: "65%" },
+                    { name: "Jet Bank Albania", em: "Piotr Kaleta", sfAccount: "13899", security: "N/A", der: "31%", gates: "55%", api: "100%", velocity: "72%" }
+                ]
+            },
+            {
+                name: "Africa",
+                engineers: 51,
+                projects: 2,
+                projects_list: [
+                    { name: "CIH - Origination", em: "Sudhakar Krovi", sfAccount: "7665", security: "N/A", der: "6%", gates: "89%", api: "100%", velocity: "88%" },
+                    { name: "SBN", em: "Rainier Jordaan", sfAccount: "18525", security: "N/A", der: "0%", gates: "79%", api: "0%", velocity: "85%" }
+                ]
+            },
+            {
+                name: "North America",
+                engineers: 165,
+                projects: 10,
+                projects_list: [
+                    { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "12%", gates: "77%", api: "100%", velocity: "86%" },
+                    { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "11%", gates: "85%", api: "0%", velocity: "83%" },
+                    { name: "NBC Mobile", em: "Tomasz Jakubas", sfAccount: "4638", security: "N/A", der: "9%", gates: "70%", api: "0%", velocity: "88%" },
+                    { name: "BECU", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "92%" },
+                    { name: "BECU CC", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "90%" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", sfAccount: "8904", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" },
+                    { name: "Eastern Business", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "89%" },
+                    { name: "Eastern Retail", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "87%" },
+                    { name: "TD Bank", em: "Veena Manasa Panuganti", sfAccount: "28252", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "93%" },
+                    { name: "WSECU", em: "Kireet Kovvali", sfAccount: "15626", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" }
+                ]
+            },
+            {
+                name: "Middle East",
+                engineers: 109,
+                projects: 3,
+                projects_list: [
+                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", sfAccount: "9774", security: "N/A", der: "0%", gates: "65%", api: "100%", velocity: "80%" },
+                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", sfAccount: "9771", security: "N/A", der: "3%", gates: "100%", api: "100%", velocity: "95%" },
+                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", sfAccount: "30437", security: "N/A", der: "0%", gates: "79%", api: "100%", velocity: "86%" }
+                ]
+            },
+            {
+                name: "LATAM",
+                engineers: 64,
+                projects: 3,
+                projects_list: [
+                    { name: "Bineo", em: "José Luis Velázquez Lara", sfAccount: "7045", security: "N/A", der: "20%", gates: "100%", api: "100%", velocity: "84%" },
+                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", sfAccount: "7871", security: "N/A", der: "10%", gates: "86%", api: "100%", velocity: "81%" },
+                    { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", sfAccount: "13619", security: "N/A", der: "33%", gates: "33%", api: "100%", velocity: "55%" }
+                ]
+            },
+            {
+                name: "Asia",
+                engineers: 220,
+                projects: 6,
+                projects_list: [
+                    { name: "HDFC", em: "Kiran Kumar Gudimalla", sfAccount: "23058", security: "N/A", der: "8%", gates: "65%", api: "100%", velocity: "82%" },
+                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", sfAccount: "17892", security: "0.93", der: "3%", gates: "88%", api: "100%", velocity: "90%" },
+                    { name: "BDO Online", em: "Malay Jain", sfAccount: "17892", security: "0.89", der: "15%", gates: "77%", api: "100%", velocity: "85%" },
+                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.79", der: "0%", gates: "75%", api: "0%", velocity: "80%" },
+                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.75", der: "0%", gates: "75%", api: "0%", velocity: "78%" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", sfAccount: "21993", security: "0.82", der: "0%", gates: "85%", api: "100%", velocity: "88%" }
+                ]
+            },
+            {
+                name: "ANZ",
+                engineers: 27,
+                projects: 2,
+                projects_list: [
+                    { name: "MyState MSE", em: "Krishna Kanth Vishnubhotla", sfAccount: "21227", security: "N/A", der: "0%", gates: "68%", api: "0%", velocity: "75%" },
+                    { name: "MyState DO", em: "Krishna Kanth Vishnubhotla", sfAccount: "N/A", security: "N/A", der: "17%", gates: "86%", api: "100%", velocity: "83%" }
+                ]
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        // Scoring functions
+        function scoreVelocity(velocityPercent) {
+            const val = parseFloat(velocityPercent);
+            if (isNaN(val)) return 0;
+            if (val >= 85) return 100;
+            if (val >= 70) return 75;
+            return 50;
+        }
+
+        function scoreDER(derPercent) {
+            const val = parseFloat(derPercent);
+            if (isNaN(val)) return 0;
+            if (val <= 10) return 100;
+            if (val <= 20) return 75;
+            return 50;
+        }
+
+        function scoreQualityGates(gatesPercent) {
+            const val = parseFloat(gatesPercent);
+            if (isNaN(val)) return 0;
+            if (val >= 90) return 100;
+            if (val >= 80) return 75;
+            return 50;
+        }
+
+        function scoreSecurity(securityValue) {
+            if (securityValue === "N/A" || securityValue === "nan") return 50; // Neutral
+            let val = securityValue === "Yes" ? 1.0 : parseFloat(securityValue);
+            if (isNaN(val)) return 50;
+            if (val > 0.80) return 100;
+            return 50;
+        }
+
+        function getEngineeringDirector(hubName) {
+            const directors = {
+                "North America": "Venkat Akkapeddi",
+                "Europe": "Marek Branka",
+                "Africa": "Marek Branka",
+                "Middle East": "TBD",
+                "LATAM": "TBD",
+                "Asia": "TBD",
+                "ANZ": "TBD"
+            };
+            return directors[hubName] || "N/A";
+        }
+
+        function calculateEEI(project) {
+            const velocityScore = scoreVelocity(project.velocity);
+            const qualityScore = scoreDER(project.der);
+            const gateScore = scoreQualityGates(project.gates);
+            const securityScore = scoreSecurity(project.security);
+
+            // Engineering Excellence Index = (Velocity × 0.15) + (Quality × 0.30) + (Gates × 0.30) + (Security × 0.25)
+            const eei = (velocityScore * 0.15) + (qualityScore * 0.30) + (gateScore * 0.30) + (securityScore * 0.25);
+
+            return {
+                total: Math.round(eei),
+                velocity: velocityScore,
+                quality: qualityScore,
+                gates: gateScore,
+                security: securityScore,
+                status: getEEIStatus(eei)
+            };
+        }
+
+        function getEEIStatus(score) {
+            if (score >= 80) return 'green';
+            if (score >= 50) return 'amber';
+            return 'red';
+        }
+
+        function filterByEEIStatus(status) {
+            currentFilter = status;
+            renderHubs();
+        }
+
+        function renderHubs() {
+            const hubGrid = document.getElementById('hubGrid');
+            hubGrid.innerHTML = '';
+
+            let greenCount = 0, amberCount = 0, redCount = 0, totalCount = 0;
+            let totalEEI = 0, totalProjects = 0;
+
+            hubsData.forEach(hub => {
+                const hubCard = document.createElement('div');
+                hubCard.className = 'hub-card';
+
+                // Calculate hub average EEI
+                let hubEEISum = 0;
+                const projectsWithEEI = hub.projects_list.map(proj => ({
+                    ...proj,
+                    eei: calculateEEI(proj)
+                }));
+
+                projectsWithEEI.forEach(proj => hubEEISum += proj.eei.total);
+                const hubAvgEEI = Math.round(hubEEISum / projectsWithEEI.length);
+                const hubEEIStatus = getEEIStatus(hubAvgEEI);
+
+                const filteredProjects = currentFilter === 'all'
+                    ? projectsWithEEI
+                    : projectsWithEEI.filter(proj => proj.eei.status === currentFilter);
+
+                if (filteredProjects.length === 0) return;
+
+                // Count status
+                projectsWithEEI.forEach(proj => {
+                    if (proj.eei.status === 'green') greenCount++;
+                    else if (proj.eei.status === 'amber') amberCount++;
+                    else redCount++;
+                    totalCount++;
+                    totalEEI += proj.eei.total;
+                });
+                totalProjects += hub.projects_list.length;
+
+                const projectsHtml = filteredProjects.map(proj => `
+                    <div class="project-item">
+                        <span class="project-name">
+                            <span class="rag-dot ${proj.eei.status}"></span>
+                            <div>
+                                <div>${proj.name}</div>
+                                <div>${proj.em}</div>
+                            </div>
+                        </span>
+                        <div class="project-status">
+                            <span class="eei-score ${proj.eei.status}-score">${proj.eei.total}</span>
+                        </div>
+                        <a href="#" class="view-details" onclick="openProjectModal(event, '${proj.name}', '${proj.em}', '${hub.name}', ${proj.eei.total}, '${proj.velocity}', '${proj.der}', '${proj.gates}', '${proj.security}', '${proj.sfAccount}', '${proj.eei.velocity}', '${proj.eei.quality}', '${proj.eei.gates}', '${proj.eei.security}')">View</a>
+                    </div>
+                `).join('');
+
+                hubCard.innerHTML = `
+                    <div class="hub-header">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <div>
+                                <div class="hub-name">
+                                    <span class="rag-dot ${hubEEIStatus}"></span>${hub.name}
+                                </div>
+                                <div class="hub-stats">
+                                    <div><a href="looker-engineering-community.html?hub=${encodeURIComponent(hub.name)}" style="color: #00D9D9; text-decoration: none; cursor: pointer; font-weight: 600;" onmouseover="this.style.textDecoration='underline'; this.style.color='#FFFFFF'" onmouseout="this.style.textDecoration='none'; this.style.color='#00D9D9'">👥 ${hub.engineers} Engineers</a></div>
+                                    <div>📊 ${hub.projects} Projects</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <a href="skillset-viewer.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                    Hub Skill Matrix
+                                </a>
+                                <a href="hub-maturity-dashboard.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                    Hub Maturity
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 12px 16px; background: #f9f9f9; border-bottom: 1px solid #e0e0e0;">
+                        <div class="hub-eei-summary">
+                            <span class="hub-eei-title">Engineering Excellence Index Score:</span>
+                            <span class="hub-eei-score ${hubEEIStatus}-score">${hubAvgEEI}</span>
+                        </div>
+                    </div>
+                    <div class="hub-content">
+                        ${projectsHtml}
+                    </div>
+                `;
+
+                hubGrid.appendChild(hubCard);
+            });
+
+            // Update counts
+            document.getElementById('greenCount').textContent = greenCount;
+            document.getElementById('amberCount').textContent = amberCount;
+            document.getElementById('redCount').textContent = redCount;
+            document.getElementById('allCount').textContent = totalCount;
+            document.getElementById('totalProjects').textContent = totalCount;
+
+        }
+
+        function openProjectModal(event, projectName, emName, hubName, eeiScore, velocity, der, gates, security, sfAccount, velScore, qualScore, gateScore, secScore) {
+            event.preventDefault();
+            const modal = document.getElementById('projectModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            const eeiStatus = getEEIStatus(eeiScore);
+            const directorName = getEngineeringDirector(hubName);
+
+            modalTitle.textContent = projectName;
+            modalBody.innerHTML = `
+                <div class="modal-section">
+                    <div class="modal-section-title">Project Information</div>
+                    <div class="modal-row">
+                        <span>Hub</span>
+                        <strong>${hubName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Engineering Director</span>
+                        <strong>${directorName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Engineering Manager</span>
+                        <strong>${emName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>SF Account</span>
+                        <strong>${sfAccount}</strong>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; color: #666;">Engineering Excellence Index Score</div>
+                        <strong style="color: ${eeiStatus === 'green' ? '#27AE60' : eeiStatus === 'amber' ? '#F39C12' : '#E74C3C'}; font-size: 24px;">${eeiScore}</strong>
+                    </div>
+                    <div style="margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; font-size: 12px; text-transform: uppercase; color: #666;">Metric Breakdown</div>
+                        <div class="metric-row">
+                            <span class="metric-name">Velocity (Commitment Rate)</span>
+                            <span class="metric-value">${velocity}</span>
+                            <span class="metric-weight" style="color: #27AE60;">15%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-name">Quality (Defect Escape Rate)</span>
+                            <span class="metric-value">${der}</span>
+                            <span class="metric-weight" style="color: #F39C12;">30%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-name">Quality Gates Score</span>
+                            <span class="metric-value">${gates}</span>
+                            <span class="metric-weight" style="color: #F39C12;">30%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-name">Security Score</span>
+                            <span class="metric-value">${security}</span>
+                            <span class="metric-weight" style="color: #E74C3C;">25%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section" style="background: #f9f9f9; padding: 12px; border-radius: 4px; margin-top: 15px;">
+                    <div style="font-size: 11px; color: #555; line-height: 1.6;">
+                        <strong style="display: block; margin-bottom: 8px;">Engineering Excellence Index Thresholds:</strong>
+                        🟢 <strong>Green (On Target)</strong>: Score ≥ 80<br>
+                        🟡 <strong>Amber (Below Target)</strong>: Score 50-79<br>
+                        🔴 <strong>Red (Critical)</strong>: Score < 50<br><br>
+                        <strong>Calculation Formula:</strong> Index = (Velocity × 0.15) + (Quality × 0.30) + (Gates × 0.30) + (Security × 0.25)
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('projectModal');
+            modal.classList.remove('show');
+        }
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('projectModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        renderHubs();
+    </script>
+</body>
+</html>

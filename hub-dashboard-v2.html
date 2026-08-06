@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Quality Dashboard - Actively Tracked Projects Only</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --red: #E74C3C;
+            --amber: #F39C12;
+            --green: #27AE60;
+            --primary: #0F3E5C;
+            --secondary: #00A8A8;
+            --light: #F8F9FA;
+            --border: #E0E0E0;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Roboto, sans-serif;
+            background: #f5f6f8;
+            color: var(--text);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        .rag-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .rag-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .rag-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .rag-status {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .rag-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rag-indicator.red { background: var(--red); }
+        .rag-indicator.amber { background: var(--amber); }
+        .rag-indicator.green { background: var(--green); }
+
+        .rag-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary-change {
+            font-size: 12px;
+            margin-top: 4px;
+            color: var(--text-light);
+        }
+
+        .hub-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 18px;
+            letter-spacing: 0.2px;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .hub-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .hub-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .hub-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 14px 16px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .hub-name {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .hub-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .hub-content {
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .project-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            gap: 12px;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-item:hover {
+            background: #f9f9f9;
+        }
+
+        .project-name {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+            color: var(--text);
+            min-width: 0;
+        }
+
+        .project-name > div {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-name div:first-of-type {
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .project-name div:last-of-type {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .rag-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rag-dot.green { background: var(--green); }
+        .rag-dot.amber { background: var(--amber); }
+        .rag-dot.red { background: var(--red); }
+
+        .project-status {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .status-value {
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 1.2;
+            min-width: 60px;
+        }
+
+        .view-details {
+            background: var(--primary);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .view-details:hover {
+            background: var(--secondary);
+        }
+
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            clear: both;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .modal-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="rag-section">
+            <div class="rag-header">
+                <div class="rag-title">Global Engineering Services Summary</div>
+                <div class="rag-status">
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByStatus('green')">
+                        <div class="rag-indicator green" title="24 Green projects">24</div>
+                        <div class="rag-label">Green</div>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByStatus('amber')">
+                        <div class="rag-indicator amber" title="5 Amber projects">5</div>
+                        <div class="rag-label">Amber</div>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByStatus('red')">
+                        <div class="rag-indicator red" title="1 Red project">1</div>
+                        <div class="rag-label">Red</div>
+                    </div>
+                    <div style="text-align: center; cursor: pointer;" onclick="filterByStatus('all')" style="margin-left: 16px;">
+                        <div class="rag-indicator" style="background: #95A5A6;" title="Show all projects">All</div>
+                        <div class="rag-label">All</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Total Engineers</div>
+                    <div class="summary-value">696</div>
+                    <div class="summary-change">Across 7 hubs</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Actively Tracked Projects</div>
+                    <div class="summary-value">30</div>
+                    <div class="summary-change">Only active projects</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--green);"></div>
+                    <span>On Track</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--amber);"></div>
+                    <span>At Risk</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--red);"></div>
+                    <span>Critical</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hub-section">
+            <div class="section-title">Engineering Hubs - Projects</div>
+            <div class="hub-grid" id="hubGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2 class="modal-title" id="modalTitle">Project Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // ONLY ACTIVELY TRACKED PROJECTS (Actively Tracking = Yes)
+        const hubsData = [
+            {
+                name: "Europe",
+                status: "green",
+                engineers: 60,
+                projects: 4,
+                projects_list: [
+                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", sfAccount: "31064", security: "1", status: "amber", der: "18%", gates: "62.5%", api: "100%" },
+                    { name: "Weatherbys", em: "Piotr Mądry", sfAccount: "9764", security: "1", status: "green", der: "19%", gates: "75%", api: "50%" },
+                    { name: "GHIB", em: "Rainier Jordaan", sfAccount: "13209", security: "N/A", status: "amber", der: "45%", gates: "45%", api: "100%" },
+                    { name: "Jet Bank Albania", em: "Piotr Kaleta", sfAccount: "13899", security: "N/A", status: "amber", der: "31%", gates: "55%", api: "100%" }
+                ]
+            },
+            {
+                name: "Africa",
+                status: "green",
+                engineers: 51,
+                projects: 2,
+                projects_list: [
+                    { name: "CIH - Origination", em: "Sudhakar Krovi", sfAccount: "7665", security: "N/A", status: "green", der: "6%", gates: "89%", api: "100%" },
+                    { name: "SBN", em: "Rainier Jordaan", sfAccount: "18525", security: "N/A", status: "green", der: "0%", gates: "79%", api: "0%" }
+                ]
+            },
+            {
+                name: "North America",
+                status: "green",
+                engineers: 165,
+                projects: 10,
+                projects_list: [
+                    { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", status: "green", der: "12%", gates: "77%", api: "100%" },
+                    { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", status: "green", der: "11%", gates: "85%", api: "0%" },
+                    { name: "NBC Mobile", em: "Tomasz Jakubas", sfAccount: "4638", security: "N/A", status: "green", der: "9%", gates: "70%", api: "0%" },
+                    { name: "BECU", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "BECU CC", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", sfAccount: "8904", security: "N/A", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Eastern Business", em: "Arshad Khan", sfAccount: "6722", security: "Yes", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Eastern Retail", em: "Arshad Khan", sfAccount: "6722", security: "Yes", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "TD Bank", em: "Veena Manasa Panuganti", sfAccount: "28252", security: "Yes", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "WSECU", em: "Kireet Kovvali", sfAccount: "15626", security: "N/A", status: "green", der: "0%", gates: "89%", api: "100%" }
+                ]
+            },
+            {
+                name: "Middle East",
+                status: "green",
+                engineers: 109,
+                projects: 3,
+                projects_list: [
+                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", sfAccount: "9774", security: "N/A", status: "amber", der: "0%", gates: "65%", api: "100%" },
+                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", sfAccount: "9771", security: "N/A", status: "green", der: "3%", gates: "100%", api: "100%" },
+                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", sfAccount: "30437", security: "N/A", status: "green", der: "0%", gates: "79%", api: "100%" }
+                ]
+            },
+            {
+                name: "LATAM",
+                status: "amber",
+                engineers: 64,
+                projects: 3,
+                projects_list: [
+                    { name: "Bineo", em: "José Luis Velázquez Lara", sfAccount: "7045", security: "N/A", status: "green", der: "20%", gates: "100%", api: "100%" },
+                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", sfAccount: "7871", security: "N/A", status: "green", der: "10%", gates: "86%", api: "100%" },
+                    { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", sfAccount: "13619", security: "N/A", status: "red", der: "33%", gates: "33%", api: "100%" }
+                ]
+            },
+            {
+                name: "Asia",
+                status: "amber",
+                engineers: 220,
+                projects: 6,
+                projects_list: [
+                    { name: "HDFC", em: "Kiran Kumar Gudimalla", sfAccount: "23058", security: "N/A", status: "green", der: "8%", gates: "65%", api: "100%" },
+                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", sfAccount: "17892", security: "0.93", status: "green", der: "3%", gates: "88%", api: "100%" },
+                    { name: "BDO Online", em: "Malay Jain", sfAccount: "17892", security: "0.89", status: "green", der: "15%", gates: "77%", api: "100%" },
+                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.79", status: "green", der: "0%", gates: "75%", api: "0%" },
+                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.75", status: "green", der: "0%", gates: "75%", api: "0%" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", sfAccount: "21993", security: "0.82", status: "green", der: "0%", gates: "85%", api: "100%" }
+                ]
+            },
+            {
+                name: "ANZ",
+                status: "green",
+                engineers: 27,
+                projects: 2,
+                projects_list: [
+                    { name: "MyState MSE", em: "Krishna Kanth Vishnubhotla", sfAccount: "21227", security: "N/A", status: "amber", der: "0%", gates: "68%", api: "0%" },
+                    { name: "MyState DO", em: "Krishna Kanth Vishnubhotla", sfAccount: "N/A", security: "N/A", status: "green", der: "17%", gates: "86%", api: "100%" }
+                ]
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            renderHubs();
+        }
+
+        function renderHubs() {
+            const hubGrid = document.getElementById('hubGrid');
+            hubGrid.innerHTML = '';
+
+            hubsData.forEach(hub => {
+                const hubCard = document.createElement('div');
+                hubCard.className = 'hub-card';
+
+                const filteredProjects = currentFilter === 'all'
+                    ? hub.projects_list
+                    : hub.projects_list.filter(proj => proj.status === currentFilter);
+
+                if (filteredProjects.length === 0) return;
+
+                const projectsHtml = filteredProjects.map(proj => `
+                    <div class="project-item">
+                        <span class="project-name">
+                            <span class="rag-dot ${proj.status}"></span>
+                            <div>
+                                <div>${proj.name}</div>
+                                <div>${proj.em}</div>
+                            </div>
+                        </span>
+                        <div class="project-status">
+                            <span class="status-value ${proj.status}">${proj.der}</span>
+                        </div>
+                        <a href="#" class="view-details" onclick="openProjectModal(event, '${proj.name}', '${proj.em}', '${hub.name}', '${proj.status}', '${proj.der}', '${proj.gates}', '${proj.api}', '${proj.sfAccount}', '${proj.security}')">View</a>
+                    </div>
+                `).join('');
+
+                hubCard.innerHTML = `
+                    <div class="hub-header">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <div>
+                                <div class="hub-name">
+                                    <span class="rag-dot ${hub.status}"></span>${hub.name}
+                                </div>
+                                <div class="hub-stats">
+                                    <div><a href="looker-engineering-community.html?hub=${encodeURIComponent(hub.name)}" style="color: #00D9D9; text-decoration: none; cursor: pointer; font-weight: 600;" onmouseover="this.style.textDecoration='underline'; this.style.color='#FFFFFF'" onmouseout="this.style.textDecoration='none'; this.style.color='#00D9D9'">👥 ${hub.engineers} Engineers</a></div>
+                                    <div>📊 ${hub.projects} Projects</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <a href="skillset-viewer.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                    Hub Skill Matrix
+                                </a>
+                                <a href="hub-maturity-dashboard.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                    Hub Maturity
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hub-content">
+                        ${projectsHtml}
+                    </div>
+                `;
+
+                hubGrid.appendChild(hubCard);
+            });
+        }
+
+        // Color coding functions based on Engineering Excellence Index thresholds
+
+        function getSecurityScoreDisplay(security) {
+            if (security === "N/A" || security === "nan") {
+                return { display: "N/A", color: "#7F8C8D" };
+            }
+
+            let scoreValue = security;
+            if (security === "Yes") {
+                scoreValue = 1.0;
+            } else {
+                scoreValue = parseFloat(security);
+            }
+
+            if (isNaN(scoreValue)) {
+                return { display: "N/A", color: "#7F8C8D" };
+            }
+
+            const percentage = (scoreValue * 100).toFixed(0) + "%";
+            let color;
+            let status;
+
+            // Engineering Excellence Index threshold: >80% = On Target, <80% = Below Target
+            if (scoreValue > 0.80) {
+                color = "#27AE60"; // Green
+                status = "On Target";
+            } else {
+                color = "#E74C3C"; // Red
+                status = "Below Target";
+            }
+
+            return { display: percentage, color: color, status: status };
+        }
+
+        function getDERScoreDisplay(der) {
+            const derValue = parseFloat(der);
+            if (isNaN(derValue)) {
+                return { display: der, color: "#7F8C8D", status: "N/A" };
+            }
+
+            let color;
+            let status;
+
+            // Engineering Excellence Index threshold for DER:
+            // Green: ≤10%, Amber: 11-20%, Red: >20%
+            if (derValue <= 10) {
+                color = "#27AE60"; // Green
+                status = "On Target";
+            } else if (derValue <= 20) {
+                color = "#F39C12"; // Amber
+                status = "Below Target";
+            } else {
+                color = "#E74C3C"; // Red
+                status = "Critical";
+            }
+
+            return { display: derValue.toFixed(1) + "%", color: color, status: status };
+        }
+
+        function getIncidentDisplay(incidents) {
+            if (incidents === "N/A" || isNaN(parseInt(incidents))) {
+                return { display: "N/A", color: "#7F8C8D", status: "N/A" };
+            }
+
+            const incidentCount = parseInt(incidents);
+            let color;
+            let status;
+
+            // Engineering Excellence Index threshold for Incidents per Quarter:
+            // Green: 0-2, Amber: 3-5, Red: >5
+            if (incidentCount <= 2) {
+                color = "#27AE60"; // Green
+                status = "On Target";
+            } else if (incidentCount <= 5) {
+                color = "#F39C12"; // Amber
+                status = "Below Target";
+            } else {
+                color = "#E74C3C"; // Red
+                status = "Critical";
+            }
+
+            return { display: incidentCount, color: color, status: status };
+        }
+
+        function getQualityGatesDisplay(gates) {
+            const gatesValue = parseFloat(gates);
+            if (isNaN(gatesValue)) {
+                return { display: gates, color: "#7F8C8D", status: "N/A" };
+            }
+
+            let color;
+            let status;
+
+            // Quality Gates thresholds (target >90%):
+            // Green: ≥90%, Amber: 80-89%, Red: <80%
+            if (gatesValue >= 90) {
+                color = "#27AE60"; // Green
+                status = "On Target";
+            } else if (gatesValue >= 80) {
+                color = "#F39C12"; // Amber
+                status = "Below Target";
+            } else {
+                color = "#E74C3C"; // Red
+                status = "Critical";
+            }
+
+            return { display: gatesValue.toFixed(1) + "%", color: color, status: status };
+        }
+
+        function getAPIAvailabilityDisplay(api) {
+            const apiValue = parseFloat(api);
+            if (isNaN(apiValue)) {
+                return { display: api, color: "#7F8C8D", status: "N/A" };
+            }
+
+            let color;
+            let status;
+
+            // API Availability thresholds (target >99.9%):
+            // Green: ≥99.5%, Amber: 99.0-99.4%, Red: <99.0%
+            if (apiValue >= 99.5) {
+                color = "#27AE60"; // Green
+                status = "On Target";
+            } else if (apiValue >= 99.0) {
+                color = "#F39C12"; // Amber
+                status = "Below Target";
+            } else {
+                color = "#E74C3C"; // Red
+                status = "Critical";
+            }
+
+            return { display: apiValue.toFixed(2) + "%", color: color, status: status };
+        }
+
+        function getEngineeringDirector(hubName) {
+            const directors = {
+                "North America": "Venkat Akkapeddi",
+                "Europe": "Marek Branka",
+                "Africa": "Marek Branka"
+            };
+            return directors[hubName] || "N/A";
+        }
+
+        function openProjectModal(event, projectName, emName, hubName, status, der, gates, api, sfAccount, security) {
+            event.preventDefault();
+            const modal = document.getElementById('projectModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            const securityDisplay = getSecurityScoreDisplay(security);
+            const derDisplay = getDERScoreDisplay(der);
+            const gatesDisplay = getQualityGatesDisplay(gates);
+            const apiDisplay = getAPIAvailabilityDisplay(api);
+            const directorName = getEngineeringDirector(hubName);
+
+            modalTitle.textContent = projectName;
+            modalBody.innerHTML = `
+                <div class="modal-section">
+                    <div class="modal-section-title">Project Information</div>
+                    <div class="modal-row">
+                        <span>SF Account Number</span>
+                        <strong>${sfAccount}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Hub</span>
+                        <strong>${hubName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Engineering Director</span>
+                        <strong>${directorName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Engineering Manager</span>
+                        <strong>${emName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Status</span>
+                        <strong style="color: ${status === 'green' ? '#27AE60' : status === 'amber' ? '#F39C12' : '#E74C3C'}; font-size: 15px; padding: 4px 8px; background: ${status === 'green' ? '#d4edda' : status === 'amber' ? '#fff3cd' : '#f8d7da'}; border-radius: 4px; display: inline-block;">${status.toUpperCase()}</strong>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">Engineering Excellence Index - Metrics</div>
+                    <div class="modal-row">
+                        <span>Defect Escape Rate</span>
+                        <strong style="color: ${derDisplay.color}; font-size: 16px;">${derDisplay.display}</strong>
+                        <span style="font-size: 12px; color: ${derDisplay.color}; margin-left: 8px;">(${derDisplay.status})</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>Quality Metrics Score</span>
+                        <strong style="color: ${gatesDisplay.color}; font-size: 16px;">${gatesDisplay.display}</strong>
+                        <span style="font-size: 12px; color: ${gatesDisplay.color}; margin-left: 8px;">(${gatesDisplay.status})</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>API Availability</span>
+                        <strong style="color: ${apiDisplay.color}; font-size: 16px;">${apiDisplay.display}</strong>
+                        <span style="font-size: 12px; color: ${apiDisplay.color}; margin-left: 8px;">(${apiDisplay.status})</span>
+                    </div>
+                    <div class="modal-row">
+                        <span>Security Score</span>
+                        <strong style="color: ${securityDisplay.color}; font-size: 16px;">${securityDisplay.display}</strong>
+                        <span style="font-size: 12px; color: ${securityDisplay.color}; margin-left: 8px;">(${securityDisplay.status})</span>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 12px; background: #f0f0f0; border-radius: 4px; font-size: 11px; color: #555; line-height: 1.6;">
+                    <strong style="font-size: 12px; display: block; margin-bottom: 6px;">Thresholds (Engineering Excellence Index):</strong>
+                    DER: 🟢 ≤10% | 🟡 11-20% | 🔴 >20%<br>
+                    Quality Metrics: 🟢 ≥90% | 🟡 80-89% | 🔴 <80%<br>
+                    API Availability: 🟢 ≥99.5% | 🟡 99.0-99.4% | 🔴 <99.0%<br>
+                    Security: 🟢 >80% | 🔴 <80%
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('projectModal');
+            modal.classList.remove('show');
+        }
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('projectModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        renderHubs();
+    </script>
+</body>
+</html>

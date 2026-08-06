@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Quality Dashboard</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --red: #E74C3C;
+            --amber: #F39C12;
+            --green: #27AE60;
+            --primary: #0F3E5C;
+            --secondary: #00A8A8;
+            --light: #F8F9FA;
+            --border: #E0E0E0;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* RAG Status Section */
+        .rag-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .rag-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .rag-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .rag-status {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .rag-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .rag-indicator.red {
+            background: var(--red);
+        }
+
+        .rag-indicator.amber {
+            background: var(--amber);
+        }
+
+        .rag-indicator.green {
+            background: var(--green);
+        }
+
+        .rag-indicator:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .rag-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary-change {
+            font-size: 12px;
+            margin-top: 4px;
+            color: var(--green);
+        }
+
+        /* Hub Navigation */
+        .hub-section {
+            margin-bottom: 32px;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .hub-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .hub-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .hub-header {
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .hub-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hub-stats {
+            font-size: 12px;
+            opacity: 0.9;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .hub-content {
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .rag-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .rag-dot.red { background: var(--red); }
+        .rag-dot.amber { background: var(--amber); }
+        .rag-dot.green { background: var(--green); }
+
+        /* Project List */
+        .project-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-name {
+            flex: 1;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .project-status {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .status-value {
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .status-value.red { color: var(--red); }
+        .status-value.amber { color: var(--amber); }
+        .status-value.green { color: var(--green); }
+
+        /* Section Title */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* View Details Button */
+        .view-details {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .view-details:hover {
+            background: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            clear: both;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .modal-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- RAG Status Section -->
+        <div class="rag-section">
+            <div class="rag-header">
+                <div class="rag-title">Global Engineering Status</div>
+                <div class="rag-status">
+                    <div style="text-align: center;">
+                        <div class="rag-indicator green" title="5 Green hubs">5</div>
+                        <div class="rag-label">Green</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="rag-indicator amber" title="2 Amber hubs">2</div>
+                        <div class="rag-label">Amber</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="rag-indicator red" title="0 Red hubs">0</div>
+                        <div class="rag-label">Red</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Defect Escape Rate</div>
+                    <div class="summary-value">8.41%</div>
+                    <div class="summary-change">↑ Needs attention</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Quality Gates</div>
+                    <div class="summary-value">75.31%</div>
+                    <div class="summary-change">↓ Below target</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">API Availability</div>
+                    <div class="summary-value">68.52%</div>
+                    <div class="summary-change">↓ Critical gap</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Sprint Velocity</div>
+                    <div class="summary-value">78.86</div>
+                    <div class="summary-change">↑ Exceeding targets</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Total Engineers</div>
+                    <div class="summary-value">22</div>
+                    <div class="summary-change">Across 7 hubs</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Projects Actively Tracked</div>
+                    <div class="summary-value">31</div>
+                    <div class="summary-change">Active delivery only</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--green);"></div>
+                    <span>On Track (>90% target)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--amber);"></div>
+                    <span>At Risk (80-90%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--red);"></div>
+                    <span>Critical (<80%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hub Navigation -->
+        <div class="hub-section">
+            <div class="section-title">Engineering Hubs</div>
+            <div class="hub-grid" id="hubGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal for project details -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2 class="modal-title" id="modalTitle">Project Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Hub data with projects - REAL DATA FROM GLOBAL PROJECT QUALITY METRICS (July 23, 2026)
+        const hubsData = [
+            {
+                name: "Europe",
+                status: "green",
+                engineers: 4,
+                projects: 4,
+                der: "28%",
+                velocity: 66,
+                projects_list: [
+                    { name: "Arbuthnot Latham", status: "amber", der: "18%", gates: "62.5%", api: "100%" },
+                    { name: "Weatherbys", status: "green", der: "19%", gates: "75%", api: "50%" },
+                    { name: "GHIB", status: "amber", der: "45%", gates: "45%", api: "100%" },
+                    { name: "Jet Bank Albania", status: "amber", der: "31%", gates: "55%", api: "100%" }
+                ]
+            },
+            {
+                name: "Africa",
+                status: "green",
+                engineers: 2,
+                projects: 2,
+                der: "6%",
+                velocity: 84,
+                projects_list: [
+                    { name: "CIH - Origination", status: "green", der: "6%", gates: "89%", api: "100%" },
+                    { name: "SBN", status: "green", der: "0%", gates: "79%", api: "0%" }
+                ]
+            },
+            {
+                name: "North America",
+                status: "green",
+                engineers: 4,
+                projects: 11,
+                der: "11%",
+                velocity: 86,
+                projects_list: [
+                    { name: "EverBank Commercial", status: "green", der: "12%", gates: "77%", api: "100%" },
+                    { name: "EverBank Back Office", status: "green", der: "11%", gates: "85%", api: "0%" },
+                    { name: "NBC Mobile", status: "green", der: "9%", gates: "70%", api: "0%" },
+                    { name: "BECU", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "BECU CC", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Alliant Retail", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Eastern Business", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Eastern Retail", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "TD Bank", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "WSECU", status: "green", der: "0%", gates: "89%", api: "100%" },
+                    { name: "Kapitus", status: "green", der: "0%", gates: "89%", api: "100%" }
+                ]
+            },
+            {
+                name: "Middle East",
+                status: "green",
+                engineers: 3,
+                projects: 3,
+                der: "3%",
+                velocity: 86,
+                projects_list: [
+                    { name: "Banque Saudi Fransi", status: "amber", der: "0%", gates: "65%", api: "100%" },
+                    { name: "Masraf Al Rayan", status: "green", der: "3%", gates: "100%", api: "100%" },
+                    { name: "Bank Muscat", status: "green", der: "0%", gates: "79%", api: "100%" }
+                ]
+            },
+            {
+                name: "LATAM",
+                status: "amber",
+                engineers: 3,
+                projects: 3,
+                der: "15%",
+                velocity: 73,
+                projects_list: [
+                    { name: "Bineo", status: "green", der: "20%", gates: "100%", api: "100%" },
+                    { name: "Banco Caja Social", status: "green", der: "10%", gates: "86%", api: "100%" },
+                    { name: "BNCR - Retail (Build)", status: "red", der: "33%", gates: "33%", api: "100%" }
+                ]
+            },
+            {
+                name: "Asia",
+                status: "amber",
+                engineers: 5,
+                projects: 6,
+                der: "9%",
+                velocity: 83,
+                projects_list: [
+                    { name: "HDFC", status: "green", der: "8%", gates: "65%", api: "100%" },
+                    { name: "BDO Pay", status: "green", der: "3%", gates: "88%", api: "100%" },
+                    { name: "BDO Online", status: "green", der: "15%", gates: "77%", api: "100%" },
+                    { name: "East West Bank Retail", status: "green", der: "0%", gates: "75%", api: "0%" },
+                    { name: "East West Bank Business", status: "green", der: "0%", gates: "75%", api: "0%" },
+                    { name: "China Bank of Philippines", status: "green", der: "0%", gates: "85%", api: "100%" }
+                ]
+            },
+            {
+                name: "ANZ",
+                status: "green",
+                engineers: 1,
+                projects: 2,
+                der: "9%",
+                velocity: 74,
+                projects_list: [
+                    { name: "MyState MSE", status: "amber", der: "0%", gates: "68%", api: "0%" },
+                    { name: "MyState DO", status: "green", der: "17%", gates: "86%", api: "100%" }
+                ]
+            }
+        ];
+
+        function renderHubs() {
+            const hubGrid = document.getElementById('hubGrid');
+            hubsData.forEach(hub => {
+                const hubCard = document.createElement('div');
+                hubCard.className = 'hub-card';
+
+                const projectsHtml = hub.projects_list.map(proj => `
+                    <div class="project-item">
+                        <span class="project-name">
+                            <span class="rag-dot ${proj.status}"></span>${proj.name}
+                        </span>
+                        <div class="project-status">
+                            <span class="status-value ${proj.status}">${proj.der}</span>
+                            <a href="#" class="view-details" onclick="openProjectModal(event, '${proj.name}', '${hub.name}', '${proj.status}', '${proj.der}', '${proj.gates}', '${proj.api}')">View</a>
+                        </div>
+                    </div>
+                `).join('');
+
+                hubCard.innerHTML = `
+                    <div class="hub-header">
+                        <div class="hub-name">
+                            <span class="rag-dot ${hub.status}"></span>${hub.name}
+                        </div>
+                        <div class="hub-stats">
+                            <div>👥 ${hub.engineers} Engineers</div>
+                            <div>📊 ${hub.projects} Projects</div>
+                        </div>
+                    </div>
+                    <div class="hub-content">
+                        ${projectsHtml}
+                    </div>
+                `;
+
+                hubGrid.appendChild(hubCard);
+            });
+        }
+
+        function openProjectModal(event, projectName, hubName, status, der, gates, api) {
+            event.preventDefault();
+
+            const modal = document.getElementById('projectModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = projectName;
+
+            modalBody.innerHTML = `
+                <div class="modal-section">
+                    <div class="modal-section-title">Hub Information</div>
+                    <div class="modal-row">
+                        <span>Hub</span>
+                        <strong>${hubName}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Status</span>
+                        <strong><span class="rag-dot ${status}"></span>${status.toUpperCase()}</strong>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Quality Metrics</div>
+                    <div class="modal-row">
+                        <span>Defect Escape Rate</span>
+                        <strong style="color: var(--${status})">${der}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>Quality Gates Pass Rate</span>
+                        <strong style="color: var(--${status})">${gates}</strong>
+                    </div>
+                    <div class="modal-row">
+                        <span>API Availability</span>
+                        <strong style="color: var(--green)">${api}</strong>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <div class="modal-section-title">Actions</div>
+                    <p style="font-size: 13px; color: var(--text-light);">
+                        Share your slide deck link or upload project metrics to view detailed dashboards and quality metrics here.
+                    </p>
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('projectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Render hubs on load
+        renderHubs();
+    </script>
+</body>
+</html>

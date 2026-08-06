@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Framework Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            color-scheme: light;
+            --primary: #0F3E5C;
+            --secondary: #00A8A8;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --light: #F8F9FA;
+            --border: #E0E0E0;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .metric-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .metric-card.success {
+            border-left-color: var(--success);
+        }
+
+        .metric-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-card.danger .metric-value {
+            color: var(--danger);
+        }
+
+        .metric-card.success .metric-value {
+            color: var(--success);
+        }
+
+        .metric-card.warning .metric-value {
+            color: var(--warning);
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .metric-trend.down {
+            color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 12px;
+        }
+
+        .chart-note {
+            font-size: 12px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.green {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+
+        .status-badge.yellow {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-badge.red {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .adoption-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .adoption-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .adoption-label {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .adoption-bar {
+            height: 8px;
+            background: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .adoption-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">Quality Framework Dashboard</h1>
+            <p class="subtitle">Backbase Quality Metrics & Performance Tracking</p>
+
+            <div class="controls">
+                <button class="btn active" data-period="3m">Last 3 Months</button>
+                <button class="btn" data-period="6m">Last 6 Months</button>
+                <button class="btn" data-period="1y">Last Year</button>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card danger">
+                <div class="metric-label">Defect Escape Rate</div>
+                <div class="metric-value">4.2%</div>
+                <div class="metric-trend">↓ 53% from Apr</div>
+            </div>
+
+            <div class="metric-card success">
+                <div class="metric-label">Quality Gates Pass Rate</div>
+                <div class="metric-value">91.6%</div>
+                <div class="metric-trend">↑ 2.1% from last month</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">API Availability</div>
+                <div class="metric-value">99.85%</div>
+                <div class="metric-trend">↑ Stable</div>
+            </div>
+
+            <div class="metric-card warning">
+                <div class="metric-label">Avg Sprint Velocity</div>
+                <div class="metric-value">47.25</div>
+                <div class="metric-trend">↑ 4.7% improvement</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Defect Escape Rate -->
+            <div class="chart-card">
+                <h3 class="chart-title">Defect Escape Rate Trend</h3>
+                <div class="chart-container">
+                    <canvas id="defectChart"></canvas>
+                </div>
+                <p class="chart-note">Downward trend indicates improving quality across releases</p>
+            </div>
+
+            <!-- Quality Gates -->
+            <div class="chart-card">
+                <h3 class="chart-title">Quality Gates Performance</h3>
+                <div class="chart-container">
+                    <canvas id="gatesChart"></canvas>
+                </div>
+                <p class="chart-note">Pass rate target: >90% across all gates</p>
+            </div>
+
+            <!-- Velocity -->
+            <div class="chart-card">
+                <h3 class="chart-title">Sprint Velocity & Corrections</h3>
+                <div class="chart-container">
+                    <canvas id="velocityChart"></canvas>
+                </div>
+                <p class="chart-note">Tracking planned vs. completed story points</p>
+            </div>
+
+            <!-- Adoption Rates -->
+            <div class="chart-card">
+                <h3 class="chart-title">Adoption Metrics</h3>
+                <div class="adoption-bars">
+                    <div class="adoption-item">
+                        <div class="adoption-label">
+                            <span>Product Adoption</span>
+                            <strong>78%</strong>
+                        </div>
+                        <div class="adoption-bar">
+                            <div class="adoption-fill" style="width: 78%; background: #00A8A8;"></div>
+                        </div>
+                    </div>
+                    <div class="adoption-item">
+                        <div class="adoption-label">
+                            <span>AI Adoption</span>
+                            <strong>52%</strong>
+                        </div>
+                        <div class="adoption-bar">
+                            <div class="adoption-fill" style="width: 52%; background: #00D9FF;"></div>
+                        </div>
+                    </div>
+                    <div class="adoption-item">
+                        <div class="adoption-label">
+                            <span>API Adoption</span>
+                            <strong>91%</strong>
+                        </div>
+                        <div class="adoption-bar">
+                            <div class="adoption-fill" style="width: 91%; background: #0F3E5C;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Availability -->
+            <div class="chart-card">
+                <h3 class="chart-title">API Tracker Availability</h3>
+                <div class="chart-container">
+                    <canvas id="apiChart"></canvas>
+                </div>
+                <p class="chart-note">Target: >99.9% uptime maintained</p>
+            </div>
+
+            <!-- Correction Rates -->
+            <div class="chart-card">
+                <h3 class="chart-title">Correction Rates by Severity</h3>
+                <div class="chart-container">
+                    <canvas id="correctionChart"></canvas>
+                </div>
+                <p class="chart-note">Weekly issue tracking by severity level</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: Today at 3:45 PM • Data from Google Sheets & Looker Studio
+        </div>
+    </div>
+
+    <script>
+        // Chart configuration
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#7F8C8D',
+                        font: { size: 12, weight: '500' },
+                        usePointStyle: true,
+                        padding: 15
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#F0F0F0', drawBorder: false },
+                    ticks: { color: '#7F8C8D', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: '#F0F0F0', drawBorder: false },
+                    ticks: { color: '#7F8C8D', font: { size: 11 } }
+                }
+            }
+        };
+
+        // Initialize charts after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            // Defect Escape Rate Chart
+            const defectCtx = document.getElementById('defectChart');
+            if (defectCtx) {
+                new Chart(defectCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                        datasets: [{
+                            label: 'Defect Escape Rate (%)',
+                            data: [8.5, 7.2, 6.8, 5.9, 4.2],
+                            borderColor: '#E74C3C',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#E74C3C',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: {
+                            ...chartDefaults.scales,
+                            y: { ...chartDefaults.scales.y, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Quality Gates Chart
+            const gatesCtx = document.getElementById('gatesChart');
+            if (gatesCtx) {
+                new Chart(gatesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Requirements', 'Design', 'Dev', 'QA', 'Deploy'],
+                        datasets: [
+                            {
+                                label: 'Passed',
+                                data: [94, 89, 92, 87, 96],
+                                backgroundColor: '#27AE60'
+                            },
+                            {
+                                label: 'Failed',
+                                data: [6, 11, 8, 13, 4],
+                                backgroundColor: '#E74C3C'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: {
+                            ...chartDefaults.scales,
+                            x: { ...chartDefaults.scales.x, stacked: true },
+                            y: { ...chartDefaults.scales.y, stacked: true, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Velocity Chart
+            const velocityCtx = document.getElementById('velocityChart');
+            if (velocityCtx) {
+                new Chart(velocityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['S1', 'S2', 'S3', 'S4'],
+                        datasets: [
+                            {
+                                label: 'Planned',
+                                data: [45, 50, 48, 52],
+                                backgroundColor: '#0F3E5C'
+                            },
+                            {
+                                label: 'Completed',
+                                data: [42, 48, 46, 51],
+                                backgroundColor: '#27AE60'
+                            },
+                            {
+                                label: 'Corrected',
+                                data: [3, 2, 2, 1],
+                                backgroundColor: '#F39C12'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, beginAtZero: true } }
+                    }
+                });
+            }
+
+            // API Availability Chart
+            const apiCtx = document.getElementById('apiChart');
+            if (apiCtx) {
+                new Chart(apiCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['W1', 'W2', 'W3', 'W4'],
+                        datasets: [{
+                            label: 'Uptime (%)',
+                            data: [99.80, 99.90, 99.70, 99.95],
+                            borderColor: '#0F3E5C',
+                            backgroundColor: 'rgba(15, 62, 92, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#0F3E5C',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: {
+                            ...chartDefaults.scales,
+                            y: { ...chartDefaults.scales.y, min: 99.5, max: 100 }
+                        }
+                    }
+                });
+            }
+
+            // Correction Rates Chart
+            const correctionCtx = document.getElementById('correctionChart');
+            if (correctionCtx) {
+                new Chart(correctionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['W1', 'W2', 'W3', 'W4'],
+                        datasets: [
+                            {
+                                label: 'Critical',
+                                data: [2, 1, 0, 1],
+                                backgroundColor: '#E74C3C'
+                            },
+                            {
+                                label: 'Major',
+                                data: [5, 3, 4, 2],
+                                backgroundColor: '#F39C12'
+                            },
+                            {
+                                label: 'Minor',
+                                data: [12, 8, 10, 6],
+                                backgroundColor: '#F1C40F'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, beginAtZero: true } }
+                    }
+                });
+            }
+        }, 100);
+
+        // Period selector
+        document.querySelectorAll('[data-period]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

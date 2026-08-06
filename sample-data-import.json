@@ -1,0 +1,217 @@
+{
+  "sheets": {
+    "Defect_Escape_Rate": [
+      {
+        "Date": "2024-04-30",
+        "Month": "Apr",
+        "Rate (%)": 8.5,
+        "Target (%)": 5.0,
+        "Status": "Red"
+      },
+      {
+        "Date": "2024-05-31",
+        "Month": "May",
+        "Rate (%)": 7.2,
+        "Target (%)": 5.0,
+        "Status": "Yellow"
+      },
+      {
+        "Date": "2024-06-30",
+        "Month": "Jun",
+        "Rate (%)": 6.8,
+        "Target (%)": 5.0,
+        "Status": "Yellow"
+      },
+      {
+        "Date": "2024-07-31",
+        "Month": "Jul",
+        "Rate (%)": 5.9,
+        "Target (%)": 5.0,
+        "Status": "Yellow"
+      },
+      {
+        "Date": "2024-08-31",
+        "Month": "Aug",
+        "Rate (%)": 4.2,
+        "Target (%)": 5.0,
+        "Status": "Green"
+      }
+    ],
+    "Quality_Gates": [
+      {
+        "Gate_Name": "Requirements",
+        "Passed": 94,
+        "Failed": 6,
+        "Total": 100,
+        "Pass_Rate (%)": 94.0,
+        "Date": "2024-08-31"
+      },
+      {
+        "Gate_Name": "Design Review",
+        "Passed": 89,
+        "Failed": 11,
+        "Total": 100,
+        "Pass_Rate (%)": 89.0,
+        "Date": "2024-08-31"
+      },
+      {
+        "Gate_Name": "Dev Complete",
+        "Passed": 92,
+        "Failed": 8,
+        "Total": 100,
+        "Pass_Rate (%)": 92.0,
+        "Date": "2024-08-31"
+      },
+      {
+        "Gate_Name": "QA Sign-off",
+        "Passed": 87,
+        "Failed": 13,
+        "Total": 100,
+        "Pass_Rate (%)": 87.0,
+        "Date": "2024-08-31"
+      },
+      {
+        "Gate_Name": "Deployment",
+        "Passed": 96,
+        "Failed": 4,
+        "Total": 100,
+        "Pass_Rate (%)": 96.0,
+        "Date": "2024-08-31"
+      }
+    ],
+    "Sprint_Velocity": [
+      {
+        "Sprint": "S1",
+        "Planned (pts)": 45,
+        "Completed (pts)": 42,
+        "Corrected (pts)": 3,
+        "Velocity (%)": 93.3,
+        "Date": "2024-08-16"
+      },
+      {
+        "Sprint": "S2",
+        "Planned (pts)": 50,
+        "Completed (pts)": 48,
+        "Corrected (pts)": 2,
+        "Velocity (%)": 96.0,
+        "Date": "2024-08-30"
+      },
+      {
+        "Sprint": "S3",
+        "Planned (pts)": 48,
+        "Completed (pts)": 46,
+        "Corrected (pts)": 2,
+        "Velocity (%)": 95.8,
+        "Date": "2024-09-13"
+      },
+      {
+        "Sprint": "S4",
+        "Planned (pts)": 52,
+        "Completed (pts)": 51,
+        "Corrected (pts)": 1,
+        "Velocity (%)": 98.1,
+        "Date": "2024-09-27"
+      }
+    ],
+    "Adoption_Rates": [
+      {
+        "Metric": "Product Adoption",
+        "Value (%)": 78,
+        "Date": "2024-08-31",
+        "Target (%)": 80,
+        "Trend": "↑"
+      },
+      {
+        "Metric": "AI Adoption",
+        "Value (%)": 52,
+        "Date": "2024-08-31",
+        "Target (%)": 60,
+        "Trend": "↑"
+      },
+      {
+        "Metric": "API Adoption",
+        "Value (%)": 91,
+        "Date": "2024-08-31",
+        "Target (%)": 85,
+        "Trend": "↑"
+      }
+    ],
+    "API_Availability": [
+      {
+        "Week": "W1",
+        "Uptime (%)": 99.80,
+        "Date": "2024-08-31",
+        "Incidents": 0,
+        "Target (%)": 99.9
+      },
+      {
+        "Week": "W2",
+        "Uptime (%)": 99.90,
+        "Date": "2024-09-07",
+        "Incidents": 0,
+        "Target (%)": 99.9
+      },
+      {
+        "Week": "W3",
+        "Uptime (%)": 99.70,
+        "Date": "2024-09-14",
+        "Incidents": 1,
+        "Target (%)": 99.9
+      },
+      {
+        "Week": "W4",
+        "Uptime (%)": 99.95,
+        "Date": "2024-09-21",
+        "Incidents": 0,
+        "Target (%)": 99.9
+      }
+    ],
+    "Correction_Rates": [
+      {
+        "Week": "W1",
+        "Critical": 2,
+        "Major": 5,
+        "Minor": 12,
+        "Total": 19,
+        "Date": "2024-08-31"
+      },
+      {
+        "Week": "W2",
+        "Critical": 1,
+        "Major": 3,
+        "Minor": 8,
+        "Total": 12,
+        "Date": "2024-09-07"
+      },
+      {
+        "Week": "W3",
+        "Critical": 0,
+        "Major": 4,
+        "Minor": 10,
+        "Total": 14,
+        "Date": "2024-09-14"
+      },
+      {
+        "Week": "W4",
+        "Critical": 1,
+        "Major": 2,
+        "Minor": 6,
+        "Total": 9,
+        "Date": "2024-09-21"
+      }
+    ]
+  },
+  "metadata": {
+    "created": "2024-08-31",
+    "version": "1.0",
+    "description": "Sample data for Backbase Quality Framework Dashboard",
+    "sheets_info": {
+      "Defect_Escape_Rate": "Track monthly defect escape rate trends",
+      "Quality_Gates": "Track pass/fail rates for each quality gate stage",
+      "Sprint_Velocity": "Track velocity across sprints",
+      "Adoption_Rates": "Track product, AI, and API adoption percentages",
+      "API_Availability": "Track weekly API uptime",
+      "Correction_Rates": "Track issues found by severity level"
+    }
+  }
+}

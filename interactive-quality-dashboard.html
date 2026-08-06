@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Framework Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            color-scheme: light;
+            --primary: #0F3E5C;
+            --secondary: #00A8A8;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --light: #F8F9FA;
+            --border: #E0E0E0;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn.toggle-view {
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .metric-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .metric-card.success {
+            border-left-color: var(--success);
+        }
+
+        .metric-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .metric-card.expanded {
+            grid-column: 1 / -1;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-card.danger .metric-value {
+            color: var(--danger);
+        }
+
+        .metric-card.success .metric-value {
+            color: var(--success);
+        }
+
+        .metric-card.warning .metric-value {
+            color: var(--warning);
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .metric-trend.down {
+            color: var(--danger);
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 16px;
+            padding: 4px 8px;
+            margin-top: 8px;
+        }
+
+        .metric-details {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .metric-card.expanded .metric-details {
+            display: block;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .detail-row label {
+            color: var(--text-light);
+        }
+
+        .detail-row value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-btn {
+            background: var(--light);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .chart-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 12px;
+        }
+
+        .chart-note {
+            font-size: 12px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .status-cell {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .status-cell:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .status-cell.green {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+
+        .status-cell.yellow {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-cell.red {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .status-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .adoption-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .adoption-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .adoption-item:hover {
+            background: var(--light);
+        }
+
+        .adoption-label {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .adoption-bar {
+            height: 8px;
+            background: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .adoption-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+            clear: both;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-row:last-child {
+            border-bottom: none;
+        }
+
+        .gauge {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+        }
+
+        .gauge-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(var(--danger) 0deg, var(--warning) 120deg, var(--success) 240deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .gauge-inner {
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .gauge-label {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--light);
+            color: var(--text-light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">Quality Framework Dashboard</h1>
+            <p class="subtitle">Backbase Quality Metrics & Performance Tracking — Click metrics to expand</p>
+
+            <div class="controls">
+                <button class="btn active" data-period="3m">Last 3 Months</button>
+                <button class="btn" data-period="6m">Last 6 Months</button>
+                <button class="btn" data-period="1y">Last Year</button>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid" id="metricsGrid">
+            <!-- Metrics will be added here -->
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Defect Escape Rate -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Defect Escape Rate Trend</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn" onclick="toggleChartView('defect', 'line')">Line</button>
+                        <button class="chart-btn" onclick="toggleChartView('defect', 'area')">Area</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="defectChart"></canvas>
+                </div>
+                <p class="chart-note">Downward trend indicates improving quality across releases</p>
+            </div>
+
+            <!-- Quality Gates -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Quality Gates Performance</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn" onclick="openModal('gatesDetail')">Details</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="gatesChart"></canvas>
+                </div>
+                <p class="chart-note">Pass rate target: >90% across all gates</p>
+            </div>
+
+            <!-- Velocity -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Sprint Velocity & Corrections</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn" onclick="openModal('velocityDetail')">Details</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="velocityChart"></canvas>
+                </div>
+                <p class="chart-note">Tracking planned vs. completed story points</p>
+            </div>
+
+            <!-- Adoption Rates -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Adoption Metrics</h3>
+                </div>
+                <div class="adoption-bars" id="adoptionBars">
+                    <!-- Adoption items will be added here -->
+                </div>
+            </div>
+
+            <!-- API Availability -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">API Tracker Availability</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn" onclick="openModal('apiDetail')">Details</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="apiChart"></canvas>
+                </div>
+                <p class="chart-note">Target: >99.9% uptime maintained</p>
+            </div>
+
+            <!-- Correction Rates -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Correction Rates by Severity</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn" onclick="openModal('correctionDetail')">Details</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="correctionChart"></canvas>
+                </div>
+                <p class="chart-note">Weekly issue tracking by severity level</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: Today at 3:45 PM • Data from Google Sheets & Looker Studio
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="metricModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('metricModal')">×</button>
+            <h2 class="modal-title" id="modalTitle">Metric Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="gatesDetail">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('gatesDetail')">×</button>
+            <h2 class="modal-title">Quality Gates Details</h2>
+            <div class="modal-section">
+                <div class="modal-section-title">Gate Status</div>
+                <div class="modal-row">
+                    <span>Requirements</span>
+                    <strong style="color: var(--success);">94/100 ✓</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Design Review</span>
+                    <strong style="color: var(--warning);">89/100 ⚠</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Dev Complete</span>
+                    <strong style="color: var(--success);">92/100 ✓</strong>
+                </div>
+                <div class="modal-row">
+                    <span>QA Sign-off</span>
+                    <strong style="color: var(--warning);">87/100 ⚠</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Deployment</span>
+                    <strong style="color: var(--success);">96/100 ✓</strong>
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Recommendations</div>
+                <p style="font-size: 13px; line-height: 1.6;">Design Review gate needs attention. Recent failures show lack of stakeholder sign-off. Consider extending review time by 1 sprint to allow for feedback incorporation.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="velocityDetail">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('velocityDetail')">×</button>
+            <h2 class="modal-title">Sprint Velocity Analysis</h2>
+            <div class="modal-section">
+                <div class="modal-section-title">Current Sprint (S4)</div>
+                <div class="modal-row">
+                    <span>Planned Points</span>
+                    <strong>52 pts</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Completed Points</span>
+                    <strong style="color: var(--success);">51 pts</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Completion Rate</span>
+                    <strong style="color: var(--success);">98.1%</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Items Needing Correction</span>
+                    <strong style="color: var(--warning);">1 item</strong>
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Velocity Trend</div>
+                <p style="font-size: 13px;">Average velocity over 4 sprints: <strong>47.25 pts</strong></p>
+                <p style="font-size: 13px; margin-top: 8px; color: var(--success);">↑ 4.7% improvement from previous month</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="apiDetail">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('apiDetail')">×</button>
+            <h2 class="modal-title">API Availability Report</h2>
+            <div class="modal-section">
+                <div class="modal-section-title">Weekly Uptime</div>
+                <div class="modal-row">
+                    <span>Week 1</span>
+                    <strong style="color: var(--warning);">99.80%</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Week 2</span>
+                    <strong style="color: var(--success);">99.90%</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Week 3</span>
+                    <strong style="color: var(--warning);">99.70%</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Week 4</span>
+                    <strong style="color: var(--success);">99.95%</strong>
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Incidents</div>
+                <p style="font-size: 13px;">Total incidents this month: <strong>1</strong></p>
+                <p style="font-size: 13px; margin-top: 8px;">Average resolution time: <strong>23 minutes</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="correctionDetail">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('correctionDetail')">×</button>
+            <h2 class="modal-title">Correction Rates Analysis</h2>
+            <div class="modal-section">
+                <div class="modal-section-title">Current Week (W4)</div>
+                <div class="modal-row">
+                    <span>Critical Issues</span>
+                    <strong style="color: var(--danger);">1</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Major Issues</span>
+                    <strong style="color: var(--warning);">2</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Minor Issues</span>
+                    <strong style="color: var(--text);">6</strong>
+                </div>
+                <div class="modal-row">
+                    <span>Total Issues</span>
+                    <strong>9</strong>
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Trend</div>
+                <p style="font-size: 13px; color: var(--success);">↓ 36% reduction from W1 (19 issues)</p>
+                <p style="font-size: 13px; margin-top: 8px;">Indicates improving quality and defect detection processes</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const metricsData = [
+            {
+                id: 'defect',
+                label: 'Defect Escape Rate',
+                value: '4.2%',
+                trend: '↓ 53% from Apr',
+                className: 'danger',
+                details: [
+                    { label: 'Target', value: '< 5.0%' },
+                    { label: 'Status', value: 'Meeting Target ✓' },
+                    { label: 'Trend', value: 'Improving' }
+                ]
+            },
+            {
+                id: 'gates',
+                label: 'Quality Gates Pass Rate',
+                value: '91.6%',
+                trend: '↑ 2.1% from last month',
+                className: 'success',
+                details: [
+                    { label: 'Target', value: '> 90%' },
+                    { label: 'Status', value: 'Meeting Target ✓' },
+                    { label: 'Trend', value: 'Stable' }
+                ]
+            },
+            {
+                id: 'api',
+                label: 'API Availability',
+                value: '99.85%',
+                trend: '↑ Stable',
+                className: '',
+                details: [
+                    { label: 'Target', value: '> 99.9%' },
+                    { label: 'Status', value: 'Near Target' },
+                    { label: 'Incidents', value: '1 this month' }
+                ]
+            },
+            {
+                id: 'velocity',
+                label: 'Avg Sprint Velocity',
+                value: '47.25',
+                trend: '↑ 4.7% improvement',
+                className: 'warning',
+                details: [
+                    { label: 'Previous Avg', value: '45.18' },
+                    { label: 'Status', value: 'Improving ↑' },
+                    { label: 'Target', value: '50 pts' }
+                ]
+            }
+        ];
+
+        const adoptionData = [
+            { name: 'Product Adoption', value: 78, color: '#00A8A8' },
+            { name: 'AI Adoption', value: 52, color: '#00D9FF' },
+            { name: 'API Adoption', value: 91, color: '#0F3E5C' }
+        ];
+
+        // Initialize
+        function init() {
+            renderMetrics();
+            renderAdoption();
+            initCharts();
+            setupEventListeners();
+        }
+
+        function renderMetrics() {
+            const grid = document.getElementById('metricsGrid');
+            grid.innerHTML = metricsData.map(metric => `
+                <div class="metric-card ${metric.className}" onclick="expandMetric('${metric.id}')">
+                    <div class="metric-label">${metric.label}</div>
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-trend">${metric.trend}</div>
+                    <div class="metric-details">
+                        ${metric.details.map(d => `
+                            <div class="detail-row">
+                                <label>${d.label}</label>
+                                <value>${d.value}</value>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="expand-btn">+ Details</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAdoption() {
+            const container = document.getElementById('adoptionBars');
+            container.innerHTML = adoptionData.map(item => `
+                <div class="adoption-item" onclick="openMetricModal('${item.name}', ${item.value})">
+                    <div class="adoption-label">
+                        <span>${item.name}</span>
+                        <strong>${item.value}%</strong>
+                    </div>
+                    <div class="adoption-bar">
+                        <div class="adoption-fill" style="width: ${item.value}%; background: ${item.color};"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function expandMetric(id) {
+            document.querySelectorAll('.metric-card').forEach(card => {
+                card.classList.remove('expanded');
+            });
+            event.currentTarget.classList.add('expanded');
+        }
+
+        function openMetricModal(name, value) {
+            const modal = document.getElementById('metricModal');
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="modal-section">
+                    <div class="modal-section-title">Current Status</div>
+                    <p style="font-size: 24px; font-weight: 700; color: var(--primary); margin: 16px 0;">${value}%</p>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">Key Insights</div>
+                    <p style="font-size: 13px; line-height: 1.6;">Based on active usage metrics and implementation data from the past 30 days. Users interacting with features and core platform adoption.</p>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">Target</div>
+                    <p style="font-size: 13px;">Next quarter target: ${value > 80 ? value + 5 : value + 10}%</p>
+                </div>
+            `;
+            modal.classList.add('show');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('[data-period]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateCharts(this.dataset.period);
+                });
+            });
+
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal(modal.id);
+                });
+            });
+        }
+
+        let charts = {};
+
+        function initCharts() {
+            const chartConfig = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { color: '#7F8C8D', font: { size: 12, weight: '500' }, padding: 15 }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: '#F0F0F0' }, ticks: { color: '#7F8C8D', font: { size: 11 } } },
+                    y: { grid: { color: '#F0F0F0' }, ticks: { color: '#7F8C8D', font: { size: 11 } } }
+                }
+            };
+
+            setTimeout(() => {
+                // Defect
+                const defectCtx = document.getElementById('defectChart');
+                if (defectCtx) {
+                    charts.defect = new Chart(defectCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                            datasets: [{
+                                label: 'Defect Escape Rate (%)',
+                                data: [8.5, 7.2, 6.8, 5.9, 4.2],
+                                borderColor: '#E74C3C',
+                                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#E74C3C',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: { ...chartConfig, scales: { ...chartConfig.scales, y: { ...chartConfig.scales.y, beginAtZero: true } } }
+                    });
+                }
+
+                // Gates
+                const gatesCtx = document.getElementById('gatesChart');
+                if (gatesCtx) {
+                    charts.gates = new Chart(gatesCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Requirements', 'Design', 'Dev', 'QA', 'Deploy'],
+                            datasets: [
+                                { label: 'Passed', data: [94, 89, 92, 87, 96], backgroundColor: '#27AE60' },
+                                { label: 'Failed', data: [6, 11, 8, 13, 4], backgroundColor: '#E74C3C' }
+                            ]
+                        },
+                        options: { ...chartConfig, scales: { ...chartConfig.scales, x: { ...chartConfig.scales.x, stacked: true }, y: { ...chartConfig.scales.y, stacked: true, beginAtZero: true } } }
+                    });
+                }
+
+                // Velocity
+                const velocityCtx = document.getElementById('velocityChart');
+                if (velocityCtx) {
+                    charts.velocity = new Chart(velocityCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['S1', 'S2', 'S3', 'S4'],
+                            datasets: [
+                                { label: 'Planned', data: [45, 50, 48, 52], backgroundColor: '#0F3E5C' },
+                                { label: 'Completed', data: [42, 48, 46, 51], backgroundColor: '#27AE60' },
+                                { label: 'Corrected', data: [3, 2, 2, 1], backgroundColor: '#F39C12' }
+                            ]
+                        },
+                        options: { ...chartConfig, scales: { ...chartConfig.scales, y: { ...chartConfig.scales.y, beginAtZero: true } } }
+                    });
+                }
+
+                // API
+                const apiCtx = document.getElementById('apiChart');
+                if (apiCtx) {
+                    charts.api = new Chart(apiCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['W1', 'W2', 'W3', 'W4'],
+                            datasets: [{
+                                label: 'Uptime (%)',
+                                data: [99.80, 99.90, 99.70, 99.95],
+                                borderColor: '#0F3E5C',
+                                backgroundColor: 'rgba(15, 62, 92, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#0F3E5C',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: { ...chartConfig, scales: { ...chartConfig.scales, y: { ...chartConfig.scales.y, min: 99.5, max: 100 } } }
+                    });
+                }
+
+                // Correction
+                const correctionCtx = document.getElementById('correctionChart');
+                if (correctionCtx) {
+                    charts.correction = new Chart(correctionCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['W1', 'W2', 'W3', 'W4'],
+                            datasets: [
+                                { label: 'Critical', data: [2, 1, 0, 1], backgroundColor: '#E74C3C' },
+                                { label: 'Major', data: [5, 3, 4, 2], backgroundColor: '#F39C12' },
+                                { label: 'Minor', data: [12, 8, 10, 6], backgroundColor: '#F1C40F' }
+                            ]
+                        },
+                        options: { ...chartConfig, scales: { ...chartConfig.scales, y: { ...chartConfig.scales.y, beginAtZero: true } } }
+                    });
+                }
+            }, 100);
+        }
+
+        function updateCharts(period) {
+            // In real implementation, fetch data based on period
+            console.log('Update charts for period:', period);
+        }
+
+        function toggleChartView(chart, type) {
+            // Toggle between line and area
+            if (charts[chart]) {
+                charts[chart].config.type = type;
+                charts[chart].update();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

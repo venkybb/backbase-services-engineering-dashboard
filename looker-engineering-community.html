@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Community - Looker Studio Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Roboto, sans-serif;
+            background: #f5f6f8;
+            color: #2C3E50;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        .header {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0F3E5C;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #7F8C8D;
+            margin-bottom: 20px;
+        }
+
+        .hub-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hub-btn {
+            padding: 10px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #2C3E50;
+        }
+
+        .hub-btn:hover {
+            border-color: #00A8A8;
+            background: #f0f9f9;
+        }
+
+        .hub-btn.active {
+            background: linear-gradient(135deg, #0F3E5C 0%, #00A8A8 100%);
+            color: white;
+            border-color: #00A8A8;
+        }
+
+        .stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat {
+            font-size: 12px;
+            color: #7F8C8D;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0F3E5C;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #0F3E5C 0%, #00A8A8 100%);
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .name-cell {
+            font-weight: 600;
+            color: #0F3E5C;
+        }
+
+        .role-cell {
+            color: #7F8C8D;
+            font-size: 12px;
+        }
+
+        .hub-header {
+            padding: 20px 24px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            color: #0F3E5C;
+            font-size: 15px;
+        }
+
+        .data-source {
+            font-size: 11px;
+            color: #7F8C8D;
+            padding: 12px 14px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 12px;
+            color: #7F8C8D;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #00A8A8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="hub-dashboard-v2.html" class="back-link">← Back to Dashboard</a>
+
+        <div class="header">
+            <div class="title">Engineering Community</div>
+            <div class="subtitle">Looker Studio Report - Cost Center Data</div>
+
+            <div class="hub-selector" id="hubSelector"></div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">696</div>
+                    <div>Total Engineers</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">7</div>
+                    <div>Hubs</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="hubCount">-</div>
+                    <div>Engineers in View</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="table-wrapper">
+                <table id="engineersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Seniority</th>
+                            <th>Location</th>
+                            <th>Profession</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="data-source">Source: Looker Studio • Cost Center Data • Updated: Aug 4, 2026</div>
+        </div>
+
+        <div class="footer">
+            Engineering Community • Looker Studio Report
+        </div>
+    </div>
+
+    <script>
+        const hubsData = {
+            "Africa": [
+                { name: "Rafael Nascimento", seniority: "7+", location: "Amsterdam", profession: "EM" },
+                { name: "Serhii Naumovych", seniority: "7+", location: "Lviv", profession: "BE" },
+                { name: "Sunil Kumar", seniority: "6+", location: "Bangalore", profession: "Android" },
+                { name: "SagarKumar Lakhani", seniority: "5+", location: "Hyderabad", profession: "QA" },
+                { name: "Faik Cesmecioglu", seniority: "5+", location: "Amsterdam", profession: "FE" },
+                { name: "Karolina Krzywanek", seniority: "5+", location: "Kraków", profession: "QA" },
+                { name: "Ivan Kerer", seniority: "5+", location: "Kyiv", profession: "Android" },
+                { name: "Elżbieta Uznańska-Bulik", seniority: "5+", location: "Kraków", profession: "QA" },
+                { name: "Muratcan Karakurt", seniority: "5+", location: "Amsterdam", profession: "DevOps" },
+                { name: "Filip Czachowski", seniority: "4+", location: "Remote Poland", profession: "QA" },
+                { name: "Dharmesh Patel", seniority: "4+", location: "Remote India", profession: "iOS" },
+                { name: "Zbigniew Jankowski", seniority: "4+", location: "Remote Poland", profession: "Android" },
+                { name: "Eugene Rozov", seniority: "4+", location: "Remote Ukraine", profession: "BE" },
+                { name: "Adam Prewo", seniority: "4+", location: "Kraków", profession: "QA" },
+                { name: "Bhuvan Sharma", seniority: "4+", location: "Remote India", profession: "iOS" },
+                { name: "Stanislav Gaponenko", seniority: "3+", location: "Kraków", profession: "BE" },
+                { name: "Artur Komorowski", seniority: "3+", location: "Kraków", profession: "QA" },
+                { name: "Yauheni Navosha", seniority: "3+", location: "Kraków", profession: "BE" },
+                { name: "Adam Kopycinski", seniority: "Engineering D/M", location: "Africa", profession: "Engineering D/M" },
+                { name: "Samrat Gantayat", seniority: "Engineering D/M", location: "Africa", profession: "Engineering D/M" }
+            ],
+            "ANZ": [
+                { name: "Minash Purohit", seniority: "5+", location: "Pune", profession: "iOS" },
+                { name: "Prashant Hingrajiya", seniority: "5+", location: "Hyderabad", profession: "Android" },
+                { name: "Anil Kukadeja", seniority: "4+", location: "Hyderabad", profession: "iOS" },
+                { name: "Sai Chanamala", seniority: "4+", location: "Remote India", profession: "BE" },
+                { name: "krishna Chaitanya Deevi", seniority: "4+", location: "Hyderabad", profession: "QA" },
+                { name: "Kirankumar Sripati", seniority: "4+", location: "Remote India", profession: "FE" },
+                { name: "Himanshu Rathore", seniority: "3+", location: "Remote India", profession: "iOS" },
+                { name: "Devender Gadiam", seniority: "3+", location: "Remote India", profession: "BE" },
+                { name: "Anish Agarwal", seniority: "3+", location: "Remote India", profession: "FE" },
+                { name: "Shalini Guniganti", seniority: "3+", location: "Hyderabad", profession: "BE" },
+                { name: "Ajay Rawat", seniority: "3+", location: "Hyderabad", profession: "Android" },
+                { name: "Dipti Tawari", seniority: "3+", location: "Hyderabad", profession: "BE" },
+                { name: "Gururaj Upparagummala", seniority: "3+", location: "Remote India", profession: "FE" },
+                { name: "Sivasankar Nallapati", seniority: "3+", location: "Hyderabad", profession: "QA" },
+                { name: "Koondla", seniority: "Engineering D/M", location: "ANZ", profession: "Engineering D/M" },
+                { name: "Amaranarayanachowdary", seniority: "Engineering D/M", location: "ANZ", profession: "Engineering D/M" },
+                { name: "Chris Vanden Berghe", seniority: "5+", location: "Amsterdam", profession: "Management" },
+                { name: "Minash Purohit", seniority: "5+", location: "Pune", profession: "iOS" },
+                { name: "Prashant Soothram", seniority: "1+", location: "Hyderabad", profession: "Security" },
+                { name: "Amar Koondla", seniority: "0+", location: "Hyderabad", profession: "EM" },
+                { name: "Shankar Pandiri", seniority: "2+", location: "Remote India", profession: "BE" },
+                { name: "Prasanna Baratam", seniority: "2+", location: "Remote India", profession: "QA" },
+                { name: "Chandrasheker Shivvolla", seniority: "1+", location: "Hyderabad", profession: "BE" }
+            ],
+            "Asia": [
+                { name: "Krishantha Sunil Premaretna", seniority: "7+", location: "Remote Sri Lanka", profession: "iOS" },
+                { name: "Noghan Odedra", seniority: "5+", location: "Pune", profession: "FE" },
+                { name: "Priteshkumar Prajapati", seniority: "5+", location: "Hyderabad", profession: "FE" },
+                { name: "Rajesh Babu Doradla", seniority: "5+", location: "Remote India", profession: "QA" },
+                { name: "Tanh Pham", seniority: "5+", location: "Vietnam", profession: "iOS" },
+                { name: "Jayesh Khasatiya", seniority: "5+", location: "Pune", profession: "Android" },
+                { name: "Niketan Patel", seniority: "5+", location: "Hyderabad", profession: "iOS" },
+                { name: "Nguyen Nhu Quynh", seniority: "5+", location: "Remote Vietnam", profession: "BE" },
+                { name: "Dileep Gaddam", seniority: "5+", location: "Remote India", profession: "iOS" },
+                { name: "Sri Rama Chandra Kashyap Addepalli", seniority: "5+", location: "Hyderabad", profession: "Android" },
+                { name: "Achyuth Manepally", seniority: "5+", location: "Hyderabad", profession: "QA" },
+                { name: "Bhavesh Nandavana", seniority: "5+", location: "Hyderabad", profession: "Android" },
+                { name: "Bhavin Akolkar", seniority: "5+", location: "Remote India", profession: "BE" },
+                { name: "Ram Sharma", seniority: "4+", location: "Remote India", profession: "iOS" },
+                { name: "Nam Hoang", seniority: "4+", location: "Vietnam", profession: "QA" },
+                { name: "Shubham Gupta", seniority: "4+", location: "Hyderabad", profession: "QA" },
+                { name: "Manan Prajapati", seniority: "4+", location: "Remote India", profession: "BE" },
+                { name: "MALAY JAIN", seniority: "Engineering D/M", location: "Asia", profession: "Engineering D/M" },
+                { name: "Kiran Kumar Gudimalla", seniority: "Engineering D/M", location: "Asia", profession: "Engineering D/M" },
+                { name: "Hari Venkata Dileep Maddi", seniority: "Engineering D/M", location: "Asia", profession: "Engineering D/M" }
+            ],
+            "Europe": [
+                { name: "Vladimir Kirchev", seniority: "8+", location: "Remote Sofia", profession: "BE" },
+                { name: "Stanislav Volskyi", seniority: "7+", location: "Kyiv", profession: "iOS" },
+                { name: "Laisa Fedulo", seniority: "7+", location: "Amsterdam", profession: "iOS" },
+                { name: "Rainier Jordaan", seniority: "6+", location: "Amsterdam", profession: "EM" },
+                { name: "Roman Huti", seniority: "6+", location: "Hungary", profession: "Android" },
+                { name: "Łukasz Maciejewski", seniority: "5+", location: "Remote Poland", profession: "FE" },
+                { name: "Sebastian Opacki", seniority: "5+", location: "Kraków", profession: "BE" },
+                { name: "Łukasz Kocoń", seniority: "5+", location: "Kraków", profession: "BE" },
+                { name: "Georgian Iorgu", seniority: "5+", location: "Amsterdam", profession: "Security" },
+                { name: "Daniel Sumara", seniority: "5+", location: "Kraków", profession: "iOS" },
+                { name: "Maksym Plencler", seniority: "5+", location: "Kraków", profession: "Android" },
+                { name: "Piotr Mądry", seniority: "4+", location: "Kraków", profession: "EM" },
+                { name: "Bruna Siqueira", seniority: "4+", location: "Amsterdam", profession: "QA" },
+                { name: "Agnieszka Macioszek", seniority: "4+", location: "Remote Poland", profession: "BE" },
+                { name: "Piotr Kaleta", seniority: "4+", location: "Kraków", profession: "EM" },
+                { name: "Karol Bembenek", seniority: "4+", location: "Kraków", profession: "BE" },
+                { name: "Marek Brańka", seniority: "Engineering D/M", location: "Europe", profession: "Engineering D/M" },
+                { name: "Adam Kopycinski", seniority: "Engineering D/M", location: "Europe", profession: "Engineering D/M" }
+            ],
+            "Middle East": [
+                { name: "Oleg Baidalka", seniority: "9+", location: "Lviv", profession: "iOS" },
+                { name: "Ifeanyi Igili", seniority: "7+", location: "Amsterdam", profession: "BE" },
+                { name: "Dariusz Majcherczyk", seniority: "5+", location: "Kraków", profession: "QA" },
+                { name: "Anupriya Batra", seniority: "5+", location: "Amsterdam", profession: "FE" },
+                { name: "Nilkanth Kacha", seniority: "5+", location: "Hyderabad", profession: "FE" },
+                { name: "Krishna Kanth Vishnubhotla", seniority: "5+", location: "Hyderabad", profession: "EM" },
+                { name: "Damodar Namala", seniority: "5+", location: "Hyderabad", profession: "iOS" },
+                { name: "Vaibhav Misra", seniority: "5+", location: "Remote India", profession: "iOS" },
+                { name: "Przemysław Nowak", seniority: "5+", location: "Kraków", profession: "BE" },
+                { name: "Rohit Jangid", seniority: "5+", location: "Remote India", profession: "Android" },
+                { name: "Jatinkumar Kansagara", seniority: "4+", location: "Hyderabad", profession: "BE" },
+                { name: "Shanika Wijayaratne", seniority: "4+", location: "Amsterdam", profession: "QA" },
+                { name: "Raman Zamoiski", seniority: "4+", location: "Kraków", profession: "BE" },
+                { name: "Ramakrishna Sunkara", seniority: "4+", location: "Remote India", profession: "Android" },
+                { name: "Saman Ayubi", seniority: "4+", location: "Remote India", profession: "FE" },
+                { name: "Suraj Kumar", seniority: "4+", location: "Amsterdam", profession: "DevOps" },
+                { name: "V Sarath Chittibomma", seniority: "Engineering D/M", location: "Middle East", profession: "Engineering D/M" },
+                { name: "Damodar Seepana", seniority: "Engineering D/M", location: "Middle East", profession: "Engineering D/M" }
+            ],
+            "North America": [
+                { name: "Oleksii Melnykov", seniority: "9+", location: "Remote Poland", profession: "FE" },
+                { name: "Pedro Mendes", seniority: "9+", location: "Atlanta", profession: "BE" },
+                { name: "Aleksandar Dukleski", seniority: "9+", location: "Remote Skopje", profession: "FE" },
+                { name: "Yanic Small", seniority: "9+", location: "Remote Spain", profession: "DevOps" },
+                { name: "Bhupendra Singh", seniority: "8+", location: "Amsterdam", profession: "BE" },
+                { name: "Shafiq Ur Rahman", seniority: "7+", location: "Atlanta", profession: "BE" },
+                { name: "Sayedur Rahman", seniority: "7+", location: "Atlanta", profession: "QA" },
+                { name: "Rajitha Selamkoti", seniority: "7+", location: "Remote USA", profession: "BE" },
+                { name: "Dmitry Oshchepkov", seniority: "7+", location: "Remote Canada", profession: "FE" },
+                { name: "Aaron Sedivy", seniority: "7+", location: "Remote USA", profession: "FE" },
+                { name: "Arturo Amaya", seniority: "7+", location: "Colombia", profession: "DevOps" },
+                { name: "Thomas Nasby", seniority: "7+", location: "Remote USA", profession: "Android" },
+                { name: "Thinh Le", seniority: "7+", location: "Remote USA", profession: "iOS" },
+                { name: "Takeshi Tsubota", seniority: "6+", location: "Remote USA", profession: "Android" },
+                { name: "Kaushal Ashokkumar Modi", seniority: "6+", location: "Remote USA", profession: "BE" },
+                { name: "Dominick DeChristofaro", seniority: "6+", location: "Atlanta", profession: "BE" },
+                { name: "Sateesh Dommeti", seniority: "Engineering D/M", location: "North America", profession: "Engineering D/M" },
+                { name: "Tomasz Jakubas", seniority: "Engineering D/M", location: "North America", profession: "Engineering D/M" },
+                { name: "Arshad Khan", seniority: "Engineering D/M", location: "North America", profession: "Engineering D/M" },
+                { name: "Venkat Akkapeddi", seniority: "Engineering Director", location: "North America", profession: "Engineering Director" }
+            ],
+            "LATAM": [
+                { name: "Gustavo Hasegawa", seniority: "9+", location: "Remote Brazil", profession: "EM" },
+                { name: "Nyabenda Mporakumugero Romero", seniority: "5+", location: "Remote Mexico City", profession: "Android" },
+                { name: "Edgar Tovar Salamanca", seniority: "5+", location: "Remote Mexico City", profession: "Android" },
+                { name: "Jose Javier Pabon Granados", seniority: "5+", location: "Colombia", profession: "iOS" },
+                { name: "Aldo Valdez Mota", seniority: "4+", location: "Remote Mexico City", profession: "BE" },
+                { name: "Carlos Orozco Rodríguez", seniority: "4+", location: "Mexico City", profession: "QA" },
+                { name: "Héctor Manuel Alonso Ortiz", seniority: "4+", location: "Guadalajara", profession: "DevOps" },
+                { name: "Jorge Guerra", seniority: "4+", location: "Guadalajara", profession: "FE" },
+                { name: "Alan Torres Morales", seniority: "4+", location: "Remote Guadalajara", profession: "Android" },
+                { name: "Angel Rodríguez Torres", seniority: "4+", location: "Guadalajara", profession: "BE" },
+                { name: "Eduardo Gonzalez Esquivel", seniority: "4+", location: "Mexico City", profession: "BE" },
+                { name: "Jesús Ramírez López", seniority: "4+", location: "Remote Guadalajara", profession: "Android" },
+                { name: "Federico Arellano Laines", seniority: "4+", location: "Remote Mexico City", profession: "QA" },
+                { name: "Javier Hernández", seniority: "4+", location: "Remote Mexico City", profession: "Android" },
+                { name: "Jairoshi Urena Melendez", seniority: "4+", location: "Remote Dominican Republic", profession: "iOS" },
+                { name: "Wilmer Gómez Rueda", seniority: "4+", location: "Colombia", profession: "BE" },
+                { name: "José Velázquez Lara", seniority: "Engineering D/M", location: "LATAM", profession: "Engineering D/M" },
+                { name: "Alan Jassiel Melgoza", seniority: "Engineering D/M", location: "LATAM", profession: "Engineering D/M" }
+            ]
+        };
+
+        let currentHub = 'All';
+
+        function initializeView() {
+            const hubSelector = document.getElementById('hubSelector');
+            const allBtn = document.createElement('button');
+            allBtn.className = 'hub-btn active';
+            allBtn.textContent = 'All Hubs (696)';
+            allBtn.onclick = () => switchHub('All');
+            hubSelector.appendChild(allBtn);
+
+            Object.keys(hubsData).forEach(hub => {
+                const count = hubsData[hub].length;
+                const btn = document.createElement('button');
+                btn.className = 'hub-btn';
+                btn.textContent = `${hub} (${count})`;
+                btn.onclick = () => switchHub(hub);
+                hubSelector.appendChild(btn);
+            });
+
+            renderEngineers();
+        }
+
+        function switchHub(hubName) {
+            currentHub = hubName;
+
+            document.querySelectorAll('.hub-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (hubName === 'All' && btn.textContent.startsWith('All')) {
+                    btn.classList.add('active');
+                } else if (hubName !== 'All' && btn.textContent.startsWith(hubName)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            renderEngineers();
+        }
+
+        function renderEngineers() {
+            const tbody = document.getElementById('tableBody');
+            let engineers = [];
+
+            if (currentHub === 'All') {
+                Object.values(hubsData).forEach(hubEngineers => {
+                    engineers = engineers.concat(hubEngineers);
+                });
+            } else {
+                engineers = hubsData[currentHub] || [];
+            }
+
+            tbody.innerHTML = engineers.map(eng => `
+                <tr>
+                    <td class="name-cell">${eng.name}</td>
+                    <td class="role-cell">${eng.seniority}</td>
+                    <td>${eng.location}</td>
+                    <td>${eng.profession}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('hubCount').textContent = engineers.length;
+        }
+
+        window.addEventListener('load', initializeView);
+    </script>
+</body>
+</html>
