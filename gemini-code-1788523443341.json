@@ -1,0 +1,111 @@
+{
+  "lastUpdated": "2026-09-04",
+  "globalOverview": {
+    "qfScopeAvg": 90,
+    "devQualityAvg": 77,
+    "defectEscapeRateAvg": 11,
+    "apiTrackerAvg": 84
+  },
+  "hubs": [
+    {
+      "name": "North America",
+      "qfScope": 100,
+      "devQuality": 87,
+      "defectEscapeRate": 12,
+      "apiTrackerInstallation": 100,
+      "status": "Green",
+      "keyProjects": [
+        { "name": "TD Bank", "qms": 100.00, "der": 11.00 },
+        { "name": "Eastern Business", "qms": 89.29, "der": 6.82 },
+        { "name": "Eastern Retail", "qms": 89.29, "der": 10.37 },
+        { "name": "Alliant Retail", "qms": 89.29, "der": 14.00 },
+        { "name": "EverBank BO", "qms": 85.00, "der": 10.56 },
+        { "name": "EverBank Comm.", "qms": 76.92, "der": 12.16 },
+        { "name": "WSECU", "qms": 75.00, "der": 30.11 }
+      ]
+    },
+    {
+      "name": "Middle-East",
+      "qfScope": 100,
+      "devQuality": 84,
+      "defectEscapeRate": 3,
+      "apiTrackerInstallation": 100,
+      "status": "Green",
+      "keyProjects": [
+        { "name": "Masraf Al Rayan", "qms": 100.00, "der": 3.00 },
+        { "name": "Banque Saudi Fransi", "qms": 80.00, "der": null },
+        { "name": "Bank Muscat", "qms": 78.57, "der": null }
+      ]
+    },
+    {
+      "name": "Africa",
+      "qfScope": 80,
+      "devQuality": 84,
+      "defectEscapeRate": 2,
+      "apiTrackerInstallation": 50,
+      "status": "Green",
+      "keyProjects": [
+        { "name": "CIH - Origination", "qms": 100.00, "der": 6.00 },
+        { "name": "CIH - Onboarding", "qms": 88.46, "der": null },
+        { "name": "SBN", "qms": 78.57, "der": null },
+        { "name": "CIH - Retail", "qms": 65.38, "der": null }
+      ]
+    },
+    {
+      "name": "Asia",
+      "qfScope": 50,
+      "devQuality": 83,
+      "defectEscapeRate": 7,
+      "apiTrackerInstallation": 100,
+      "status": "Green",
+      "keyProjects": [
+        { "name": "BDO Pay", "qms": 88.46, "der": 3.00 },
+        { "name": "China Bank of Philippines", "qms": 85.00, "der": null },
+        { "name": "BDO Online", "qms": 76.92, "der": 9.00 },
+        { "name": "East West Bank Retail", "qms": 75.00, "der": null },
+        { "name": "East West Bank Business", "qms": 75.00, "der": null },
+        { "name": "HDFC", "qms": 65.38, "der": 8.00 }
+      ]
+    },
+    {
+      "name": "ANZ",
+      "qfScope": 100,
+      "devQuality": 74,
+      "defectEscapeRate": 9,
+      "apiTrackerInstallation": 50,
+      "status": "Amber",
+      "keyProjects": [
+        { "name": "MyState DO", "qms": 86.36, "der": 17.00 },
+        { "name": "MyState MSE", "qms": 68.18, "der": 1.00 }
+      ]
+    },
+    {
+      "name": "Europe",
+      "qfScope": 100,
+      "devQuality": 66,
+      "defectEscapeRate": 28,
+      "apiTrackerInstallation": 90,
+      "status": "Amber",
+      "keyProjects": [
+        { "name": "Danske", "qms": 100.00, "der": null },
+        { "name": "Weatherbys", "qms": 75.00, "der": 19.00 },
+        { "name": "Arbuthnot Latham", "qms": 62.50, "der": 18.00 },
+        { "name": "Jet Bank Albania", "qms": 55.00, "der": 31.00 },
+        { "name": "GHIB", "qms": 45.45, "der": 45.45 }
+      ]
+    },
+    {
+      "name": "LATAM",
+      "qfScope": 100,
+      "devQuality": 64,
+      "defectEscapeRate": 15,
+      "apiTrackerInstallation": 100,
+      "status": "Amber",
+      "keyProjects": [
+        { "name": "Banco Caja Social", "qms": 86.36, "der": 10.00 },
+        { "name": "Bineo", "qms": 59.09, "der": 20.00 },
+        { "name": "BNCR - Retail (Build)", "qms": 33.33, "der": null }
+      ]
+    }
+  ]
+}
