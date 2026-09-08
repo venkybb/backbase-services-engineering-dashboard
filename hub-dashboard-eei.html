@@ -198,11 +198,25 @@
         }
 
         .hub-score-badge {
-            font-weight: 700;
-            font-size: 16px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            background: white;
+            text-align: right;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .hub-score-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+
+        .hub-score-val {
+            font-weight: 800;
+            font-size: 18px;
+            line-height: 1.1;
         }
 
         .hub-body {
@@ -248,13 +262,13 @@
         <header>
             <div>
                 <h1>Backbase Services Engineering Dashboard</h1>
-                <p class="subtitle">Live Quality Metrics & EEI Scores</p>
+                <p class="subtitle">Live Quality Metrics & Hub Security Scores</p>
             </div>
         </header>
 
         <!-- Navigation Tabs -->
         <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchView('eei', event)">Engineering Excellence Index</button>
+            <button class="tab-btn active" onclick="switchView('eei', event)">Engineering Quality Index</button>
             <button class="tab-btn" onclick="switchView('skills', event)">Hub Skill Matrix</button>
             <button class="tab-btn" onclick="switchView('maturity', event)">Hub Maturity</button>
         </div>
@@ -268,12 +282,12 @@
                     <div class="summary-subtext" id="totalHubs">Across -- Hubs</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Total Projects</div>
+                    <div class="summary-label">Total Projects Tracked</div>
                     <div class="summary-value" id="totalProjects">--</div>
-                    <div class="summary-subtext">Quality Index Metrics</div>
+                    <div class="summary-subtext">Active Engagements</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Project Status Overview</div>
+                    <div class="summary-label">Project Quality Overview</div>
                     <div class="rag-status">
                         <div class="rag-badge" onclick="filterByRAG('green')">
                             <div class="rag-indicator green" id="greenCount">0</div>
@@ -314,7 +328,7 @@
 
     <script>
         const SHEET_ID = '1LVaYLISkP4F_dCuN4vxASSMt7xB2YFNNCmFUawXYKNk';
-        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=1547920082`;
+        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
         let hubsData = [];
         let currentRAGFilter = 'all';
@@ -322,6 +336,11 @@
         const hubEngDefaults = { 
             "Europe": 60, "Africa": 51, "North America": 165, 
             "Middle East": 109, "LATAM": 64, "Asia": 220, "ANZ": 27 
+        };
+
+        const hubSecurityDefaults = {
+            "Africa": 96, "ANZ": 85, "North America": 74, 
+            "Middle East": 88, "Asia": 80, "Europe": 82, "LATAM": 78
         };
 
         function switchView(paneId, evt) {
@@ -357,7 +376,7 @@
                         const cols = response.table.cols || [];
                         const rows = response.table.rows;
 
-                        let hubIdx = -1, projIdx = -1, emIdx = -1, activeIdx = -1, derIdx = -1, gatesIdx = -1, eeiIdx = -1;
+                        let hubIdx = -1, projIdx = -1, emIdx = -1, activeIdx = -1, derIdx = -1, scoreIdx = -1, securityIdx = 7;
 
                         cols.forEach((c, idx) => {
                             const lbl = (c.label || c.id || "").toString().trim().toLowerCase();
@@ -366,13 +385,13 @@
                             if (lbl.includes("manager") || lbl.includes("em") || lbl.includes("lead")) emIdx = idx;
                             if (lbl.includes("tracking") || lbl.includes("actively")) activeIdx = idx;
                             if (lbl.includes("der") || lbl.includes("defect")) derIdx = idx;
-                            if (lbl.includes("gate")) gatesIdx = idx;
-                            if (lbl.includes("eei") || lbl.includes("index") || lbl.includes("score")) eeiIdx = idx;
+                            if (lbl.includes("score") || lbl.includes("eei") || lbl.includes("quality")) scoreIdx = idx;
+                            if (lbl.includes("security")) securityIdx = idx;
                         });
 
                         const hubsMap = {};
 
-                        rows.forEach((r) => {
+                        rows.forEach((r, rowIdx) => {
                             if (!r.c) return;
 
                             const getVal = (i) => (i >= 0 && r.c[i] && r.c[i].v !== null && r.c[i].v !== undefined) ? r.c[i].v.toString().trim() : "";
@@ -393,26 +412,32 @@
 
                             if (!hubName || !projectName || hubName.toLowerCase() === "hub") return;
 
-                            let eeiVal = 75;
-                            if (eeiIdx !== -1 && !isNaN(parseFloat(getVal(eeiIdx)))) {
-                                eeiVal = Math.round(parseFloat(getVal(eeiIdx)));
+                            // Extract Hub Security Score from Row 3 Column H (Index 7)
+                            let hubSecScore = hubSecurityDefaults[hubName] || 80;
+                            if (r.c[7] && !isNaN(parseFloat(r.c[7].v)) && parseFloat(r.c[7].v) > 10) {
+                                hubSecScore = Math.round(parseFloat(r.c[7].v));
+                            }
+
+                            let qualityScore = 80;
+                            if (scoreIdx !== -1 && !isNaN(parseFloat(getVal(scoreIdx)))) {
+                                qualityScore = Math.round(parseFloat(getVal(scoreIdx)));
                             } else {
                                 for (let i = 3; i < r.c.length; i++) {
                                     const num = parseFloat(getVal(i));
                                     if (!isNaN(num) && num >= 10 && num <= 100) {
-                                        eeiVal = Math.round(num);
+                                        qualityScore = Math.round(num);
                                         break;
                                     }
                                 }
                             }
 
                             const derVal = getFmt(derIdx !== -1 ? derIdx : 4) || "0%";
-                            const gatesVal = getFmt(gatesIdx !== -1 ? gatesIdx : 6) || "0%";
 
                             if (!hubsMap[hubName]) {
                                 hubsMap[hubName] = {
                                     name: hubName,
                                     engineers: hubEngDefaults[hubName] || 50,
+                                    securityScore: hubSecScore,
                                     projects_list: []
                                 };
                             }
@@ -421,9 +446,8 @@
                                 hubsMap[hubName].projects_list.push({
                                     name: projectName,
                                     em: emName,
-                                    eei: eeiVal,
-                                    der: derVal,
-                                    gates: gatesVal
+                                    score: qualityScore,
+                                    der: derVal
                                 });
                             }
                         });
@@ -453,50 +477,50 @@
 
         function fallbackData() {
             hubsData = [
-                { name: "Africa", engineers: 51, projects_list: [
-                    { name: "CIH - Origination", em: "Sudhakar Krovi", eei: 88, der: "6%", gates: "89%" },
-                    { name: "CIH - Retail", em: "Sudhakar Krovi", eei: 85, der: "5%", gates: "87%" },
-                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", eei: 84, der: "6%", gates: "85%" }
+                { name: "Africa", engineers: 51, securityScore: 96, projects_list: [
+                    { name: "CIH - Origination", em: "Sudhakar Krovi", score: 88, der: "6%" },
+                    { name: "CIH - Retail", em: "Sudhakar Krovi", score: 85, der: "5%" },
+                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", score: 84, der: "6%" }
                 ]},
-                { name: "ANZ", engineers: 27, projects_list: [
-                    { name: "MyState MSE", em: "Amar Koondla", eei: 75, der: "0%", gates: "68%" },
-                    { name: "MyState DO", em: "Amar Koondla", eei: 83, der: "17%", gates: "86%" }
+                { name: "ANZ", engineers: 27, securityScore: 85, projects_list: [
+                    { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0%" },
+                    { name: "MyState DO", em: "Amar Koondla", score: 83, der: "17%" }
                 ]},
-                { name: "North America", engineers: 165, projects_list: [
-                    { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", eei: 86, der: "12%", gates: "77%" },
-                    { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", eei: 83, der: "11%", gates: "85%" },
-                    { name: "NBC Mobile", em: "Tomasz Jakubas", eei: 88, der: "9%", gates: "70%" },
-                    { name: "BECU", em: "Rodrigo Monroy", eei: 92, der: "0%", gates: "89%" },
-                    { name: "BECU CC", em: "Rodrigo Monroy", eei: 90, der: "0%", gates: "89%" },
-                    { name: "Alliant Retail", em: "Sateesh Dommeti", eei: 91, der: "0%", gates: "89%" },
-                    { name: "Eastern Business", em: "Arshad Khan", eei: 89, der: "0%", gates: "89%" },
-                    { name: "Eastern Retail", em: "Arshad Khan", eei: 87, der: "0%", gates: "89%" },
-                    { name: "TD Bank", em: "Veena Manasa Panuganti", eei: 93, der: "0%", gates: "89%" },
-                    { name: "WSECU", em: "Kireet Kovvali", eei: 91, der: "0%", gates: "89%" }
+                { name: "North America", engineers: 165, securityScore: 74, projects_list: [
+                    { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", score: 86, der: "12%" },
+                    { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", score: 83, der: "11%" },
+                    { name: "NBC Mobile", em: "Tomasz Jakubas", score: 88, der: "9%" },
+                    { name: "BECU", em: "Rodrigo Monroy", score: 92, der: "0%" },
+                    { name: "BECU CC", em: "Rodrigo Monroy", score: 90, der: "0%" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "0%" },
+                    { name: "Eastern Business", em: "Arshad Khan", score: 89, der: "0%" },
+                    { name: "Eastern Retail", em: "Arshad Khan", score: 87, der: "0%" },
+                    { name: "TD Bank", em: "Veena Manasa Panuganti", score: 93, der: "0%" },
+                    { name: "WSECU", em: "Kireet Kovvali", score: 91, der: "0%" }
                 ]},
-                { name: "Middle East", engineers: 109, projects_list: [
-                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", eei: 80, der: "0%", gates: "65%" },
-                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", eei: 95, der: "3%", gates: "100%" },
-                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", eei: 86, der: "0%", gates: "79%" }
+                { name: "Middle East", engineers: 109, securityScore: 88, projects_list: [
+                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", score: 80, der: "0%" },
+                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", score: 95, der: "3%" },
+                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", score: 86, der: "0%" }
                 ]},
-                { name: "Asia", engineers: 220, projects_list: [
-                    { name: "HDFC", em: "Kiran Kumar Gudimalla", eei: 82, der: "8%", gates: "65%" },
-                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", eei: 90, der: "3%", gates: "88%" },
-                    { name: "BDO Online", em: "Malay Jain", eei: 85, der: "15%", gates: "77%" },
-                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", eei: 80, der: "0%", gates: "75%" },
-                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", eei: 78, der: "0%", gates: "75%" },
-                    { name: "China Bank of Philippines", em: "Divya Appidi", eei: 88, der: "0%", gates: "85%" }
+                { name: "Asia", engineers: 220, securityScore: 80, projects_list: [
+                    { name: "HDFC", em: "Kiran Kumar Gudimalla", score: 82, der: "8%" },
+                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", score: 90, der: "3%" },
+                    { name: "BDO Online", em: "Malay Jain", score: 85, der: "15%" },
+                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", score: 80, der: "0%" },
+                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", score: 78, der: "0%" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0%" }
                 ]},
-                { name: "Europe", engineers: 60, projects_list: [
-                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", eei: 78, der: "18%", gates: "62.5%" },
-                    { name: "Weatherbys", em: "Piotr Mądry", eei: 82, der: "19%", gates: "75%" },
-                    { name: "GHIB", em: "Rainier Jordaan", eei: 65, der: "45%", gates: "45%" },
-                    { name: "Jet Bank Albania", em: "Piotr Kaleta", eei: 72, der: "31%", gates: "55%" }
+                { name: "Europe", engineers: 60, securityScore: 82, projects_list: [
+                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", score: 78, der: "18%" },
+                    { name: "Weatherbys", em: "Piotr Mądry", score: 82, der: "19%" },
+                    { name: "GHIB", em: "Rainier Jordaan", score: 65, der: "45%" },
+                    { name: "Jet Bank Albania", em: "Piotr Kaleta", score: 72, der: "31%" }
                 ]},
-                { name: "LATAM", engineers: 64, projects_list: [
-                    { name: "Bineo", em: "José Luis Velázquez Lara", eei: 84, der: "20%", gates: "100%" },
-                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", eei: 81, der: "10%", gates: "86%" },
-                    { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", eei: 55, der: "33%", gates: "33%" }
+                { name: "LATAM", engineers: 64, securityScore: 78, projects_list: [
+                    { name: "Bineo", em: "José Luis Velázquez Lara", score: 84, der: "20%" },
+                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", score: 81, der: "10%" },
+                    { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", score: 55, der: "33%" }
                 ]}
             ];
             updateTotals();
@@ -519,21 +543,17 @@
             let green = 0, amber = 0, red = 0, total = 0;
 
             hubsData.forEach(hub => {
-                let hubEEISum = 0;
                 hub.projects_list.forEach(p => {
-                    hubEEISum += p.eei;
-                    if (p.eei >= 80) green++;
-                    else if (p.eei >= 60) amber++;
+                    if (p.score >= 80) green++;
+                    else if (p.score >= 60) amber++;
                     else red++;
                     total++;
                 });
 
-                const hubAvg = hub.projects_list.length > 0 ? Math.round(hubEEISum / hub.projects_list.length) : 0;
-
                 const filteredProjects = hub.projects_list.filter(p => {
-                    if (currentRAGFilter === 'green') return p.eei >= 80;
-                    if (currentRAGFilter === 'amber') return p.eei >= 60 && p.eei < 80;
-                    if (currentRAGFilter === 'red') return p.eei < 60;
+                    if (currentRAGFilter === 'green') return p.score >= 80;
+                    if (currentRAGFilter === 'amber') return p.score >= 60 && p.score < 80;
+                    if (currentRAGFilter === 'red') return p.score < 60;
                     return true;
                 });
 
@@ -546,8 +566,7 @@
                     <tr>
                         <td><strong>${p.name}</strong><br><small style="color:#888">${p.em}</small></td>
                         <td>${p.der}</td>
-                        <td>${p.gates}</td>
-                        <td><span class="eei-pill ${getStatusClass(p.eei)}">${p.eei}</span></td>
+                        <td><span class="eei-pill ${getStatusClass(p.score)}">${p.score}</span></td>
                     </tr>
                 `).join('');
 
@@ -557,7 +576,10 @@
                             <div class="hub-name">${hub.name} Hub</div>
                             <div class="hub-meta">👥 ${hub.engineers} Engineers | 📊 ${hub.projects_list.length} Projects</div>
                         </div>
-                        <div class="hub-score-badge ${getStatusClass(hubAvg)}">${hubAvg} EEI</div>
+                        <div class="hub-score-badge">
+                            <div class="hub-score-title">Security Score</div>
+                            <div class="hub-score-val">${hub.securityScore}</div>
+                        </div>
                     </div>
                     <div class="hub-body">
                         <table class="data-table">
@@ -565,8 +587,7 @@
                                 <tr>
                                     <th>Project</th>
                                     <th>DER</th>
-                                    <th>Gates</th>
-                                    <th>EEI</th>
+                                    <th>Quality Score</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
