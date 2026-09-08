@@ -471,10 +471,57 @@
     </div>
 
     <script>
-        // 1. Corrected Skill Matrix Google Sheet published CSV URL
-        const SKILL_MATRIX_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs/pub?output=csv';
+        // Google Sheets ID for Skill Matrix
+        const SHEET_ID = '1SrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs';
+        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
-        // Static fallback data for Hub projects
+        // Fetch Engineer Count via Google Visualization API (Bypasses CORS restrictions)
+        function updateEngineerMetrics() {
+            window.google = window.google || {};
+            window.google.visualization = window.google.visualization || {};
+            window.google.visualization.Query = {
+                setResponse: function(response) {
+                    try {
+                        if (!response || !response.table || !response.table.rows) return;
+
+                        const rows = response.table.rows;
+                        
+                        // Count valid non-empty rows
+                        const validRows = rows.filter(r => r.c && r.c.some(cell => cell && cell.v !== null && cell.v !== ""));
+                        const totalEngineers = validRows.length;
+
+                        // Extract hubs
+                        const hubs = new Set();
+                        validRows.forEach(r => {
+                            if (r.c) {
+                                r.c.forEach(cell => {
+                                    if (cell && cell.v && typeof cell.v === 'string') {
+                                        const val = cell.v.trim();
+                                        if (['North America', 'Europe', 'Africa', 'Middle East', 'LATAM', 'Asia', 'ANZ'].includes(val)) {
+                                            hubs.add(val);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        const totalElem = document.getElementById('totalEngineers');
+                        const hubsElem = document.getElementById('totalHubs');
+
+                        if (totalElem) totalElem.innerText = totalEngineers.toLocaleString();
+                        if (hubsElem) hubsElem.innerText = hubs.size > 0 ? `Across ${hubs.size} hubs` : 'Across hubs';
+                    } catch (err) {
+                        console.error('Error parsing Google Sheets data:', err);
+                    }
+                }
+            };
+
+            const scriptElement = document.createElement('script');
+            scriptElement.src = GVIZ_URL;
+            document.body.appendChild(scriptElement);
+        }
+
+        // Static Hub data for Projects UI
         const hubsData = [
             {
                 name: "Europe",
@@ -559,61 +606,6 @@
 
         let currentFilter = 'all';
 
-        // Function to fetch and update Engineer metrics from Skill Matrix Google Sheet
-        async function updateEngineerMetrics() {
-            try {
-                const response = await fetch(SKILL_MATRIX_CSV_URL);
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-
-                const csvText = await response.text();
-
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        const rows = results.data;
-                        if (!rows || rows.length === 0) return;
-
-                        // Detect headers dynamically
-                        const sampleRow = rows[0];
-                        const keys = Object.keys(sampleRow);
-                        const nameKey = keys.find(k => /name|engineer|employee|member/i.test(k));
-                        const hubKey = keys.find(k => /hub|profit centre|region|location/i.test(k));
-
-                        // Filter valid engineer entries
-                        const validEngineers = rows.filter(row => {
-                            if (nameKey) return row[nameKey] && row[nameKey].trim() !== '';
-                            return Object.values(row).some(val => val && val.trim() !== '');
-                        });
-
-                        const totalEngineers = validEngineers.length;
-
-                        // Calculate unique hubs
-                        let uniqueHubsCount = 0;
-                        if (hubKey) {
-                            const uniqueHubs = new Set(
-                                validEngineers
-                                    .map(e => e[hubKey] ? e[hubKey].trim() : '')
-                                    .filter(Boolean)
-                            );
-                            uniqueHubsCount = uniqueHubs.size;
-                        }
-
-                        // Update DOM Elements
-                        const totalElem = document.getElementById('totalEngineers');
-                        const hubsElem = document.getElementById('totalHubs');
-
-                        if (totalElem) totalElem.innerText = totalEngineers.toLocaleString();
-                        if (hubsElem) hubsElem.innerText = uniqueHubsCount > 0 ? `Across ${uniqueHubsCount} hubs` : 'Across hubs';
-                    }
-                });
-
-            } catch (error) {
-                console.error('Failed to load Skill Matrix metrics:', error);
-            }
-        }
-
-        // EEI Calculation functions
         function scoreVelocity(valStr) {
             const val = parseFloat(valStr);
             if (isNaN(val)) return 0;
@@ -769,7 +761,6 @@
                 hubGrid.appendChild(hubCard);
             });
 
-            // Update header badge counts
             document.getElementById('greenCount').textContent = greenCount;
             document.getElementById('amberCount').textContent = amberCount;
             document.getElementById('redCount').textContent = redCount;
@@ -823,7 +814,7 @@
             if (event.target === modal) closeModal();
         });
 
-        // Initialize on page load
+        // Initialize dashboard UI and fetch live engineer count
         document.addEventListener('DOMContentLoaded', () => {
             renderHubs();
             updateEngineerMetrics();
