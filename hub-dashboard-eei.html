@@ -364,17 +364,29 @@
             renderEEIGrid();
         }
 
-        function extractDirectSheetValue(cellObj) {
-            if (!cellObj || cellObj.v === null || cellObj.v === undefined) return "0%";
-            if (cellObj.f) return cellObj.f.toString().trim();
-            let val = cellObj.v.toString().trim();
-            if (!isNaN(parseFloat(val)) && parseFloat(val) > 0 && parseFloat(val) < 1) {
-                return (parseFloat(val) * 100).toFixed(1).replace('.0', '') + "%";
+        function parseRawDER(cellObj) {
+            if (!cellObj) return "0%";
+            
+            // Prefer formatted text string from sheet if available (e.g., "12%", "0.8%")
+            if (cellObj.f) {
+                let fmt = cellObj.f.toString().trim();
+                if (fmt.length > 0) return fmt.includes("%") ? fmt : fmt + "%";
             }
-            if (!isNaN(parseFloat(val)) && !val.includes("%")) {
-                return val + "%";
+            
+            // Process raw value
+            if (cellObj.v !== null && cellObj.v !== undefined) {
+                let valStr = cellObj.v.toString().trim();
+                let num = parseFloat(valStr);
+                
+                if (!isNaN(num)) {
+                    if (num > 0 && num < 1) {
+                        return (num * 100).toFixed(1).replace('.0', '') + "%";
+                    }
+                    return valStr.includes("%") ? valStr : valStr + "%";
+                }
+                return valStr;
             }
-            return val;
+            return "0%";
         }
 
         function fetchLiveSheetData() {
@@ -425,7 +437,6 @@
 
                             if (!hubName || !projectName || hubName.toLowerCase() === "hub") return;
 
-                            // Explicitly exclude East West Bank projects
                             if (excludedProjects.some(ex => projectName.toLowerCase().includes(ex))) return;
 
                             let hubSecScore = hubSecurityDefaults[hubName] || 80;
@@ -435,18 +446,19 @@
 
                             let qualityScore = 80;
                             if (scoreIdx !== -1 && !isNaN(parseFloat(getVal(scoreIdx)))) {
-                                qualityScore = Math.round(parseFloat(getVal(scoreIdx)));
+                                qualityScore = parseFloat(getVal(scoreIdx));
+                                if (qualityScore <= 1 && qualityScore > 0) qualityScore = qualityScore * 100;
                             } else {
                                 for (let i = 3; i < r.c.length; i++) {
                                     const num = parseFloat(getVal(i));
                                     if (!isNaN(num) && num >= 10 && num <= 100) {
-                                        qualityScore = Math.round(num);
+                                        qualityScore = num;
                                         break;
                                     }
                                 }
                             }
 
-                            const directDER = extractDirectSheetValue(r.c[derIdx !== -1 ? derIdx : 4]);
+                            const directDER = parseRawDER(r.c[derIdx !== -1 ? derIdx : 4]);
 
                             if (!hubsMap[hubName]) {
                                 hubsMap[hubName] = {
@@ -461,7 +473,7 @@
                                 hubsMap[hubName].projects_list.push({
                                     name: projectName,
                                     em: emName,
-                                    score: qualityScore,
+                                    score: Number(qualityScore.toFixed(2)),
                                     der: directDER
                                 });
                             }
@@ -498,8 +510,8 @@
                     { name: "CIH-Onboarding", em: "Sudhakar Krovi", score: 84, der: "0%" }
                 ]},
                 { name: "ANZ", engineers: 27, securityScore: 85, projects_list: [
-                    { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0%" },
-                    { name: "MyState DO", em: "Amar Koondla", score: 83, der: "17%" }
+                    { name: "MyState MSE", em: "Amar Koondla", score: 80.77, der: "0%" },
+                    { name: "MyState DO", em: "Amar Koondla", score: 86.36, der: "17%" }
                 ]},
                 { name: "Asia", engineers: 220, securityScore: 80, projects_list: [
                     { name: "HDFC", em: "Kiran Kumar Gudimalla", score: 82, der: "8%" },
@@ -511,11 +523,11 @@
                     { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", score: 86, der: "12%" },
                     { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", score: 83, der: "11%" },
                     { name: "NBC Mobile", em: "Tomasz Jakubas", score: 88, der: "9%" },
-                    { name: "BECU", em: "Rodrigo Monroy", score: 92, der: "15%" },
-                    { name: "BECU CC", em: "Rodrigo Monroy", score: 90, der: "15%" },
-                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "5%" },
-                    { name: "Eastern Business", em: "Arshad Khan", score: 89, der: "4%" },
-                    { name: "Eastern Retail", em: "Arshad Khan", score: 87, der: "6%" },
+                    { name: "BECU", em: "Rodrigo Monroy", score: 92, der: "0.8%" },
+                    { name: "BECU CC", em: "Rodrigo Monroy", score: 90, der: "0.5%" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "0.5%" },
+                    { name: "Eastern Business", em: "Arshad Khan", score: 89, der: "0.4%" },
+                    { name: "Eastern Retail", em: "Arshad Khan", score: 87, der: "0.6%" },
                     { name: "TD Bank", em: "Veena Manasa Panuganti", score: 93, der: "8%" },
                     { name: "WSECU", em: "Kireet Kovvali", score: 91, der: "0%" }
                 ]},
@@ -565,7 +577,7 @@
                     total++;
                 });
 
-                const hubAvgScore = hub.projects_list.length > 0 ? Math.round(hubScoreSum / hub.projects_list.length) : 0;
+                const hubAvgScore = hub.projects_list.length > 0 ? (hubScoreSum / hub.projects_list.length).toFixed(2) : "0";
 
                 const filteredProjects = hub.projects_list.filter(p => {
                     if (currentRAGFilter === 'green') return p.score >= 80;
@@ -595,7 +607,7 @@
                         </div>
                         <div class="hub-score-badge">
                             <div class="hub-score-title">Quality Score</div>
-                            <div class="hub-score-val">${hubAvgScore}</div>
+                            <div class="hub-score-val">${hubAvgScore}%</div>
                         </div>
                     </div>
                     <div class="hub-body">
