@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Quality Dashboard - Engineering Excellence Index Scores</title>
     
-    <!-- Include PapaParse for Google Sheets CSV parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
     <style>
         :root {
             color-scheme: light;
@@ -471,57 +468,7 @@
     </div>
 
     <script>
-        // Google Sheets ID for Skill Matrix
-        const SHEET_ID = '1SrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs';
-        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
-
-        // Fetch Engineer Count via Google Visualization API (Bypasses CORS restrictions)
-        function updateEngineerMetrics() {
-            window.google = window.google || {};
-            window.google.visualization = window.google.visualization || {};
-            window.google.visualization.Query = {
-                setResponse: function(response) {
-                    try {
-                        if (!response || !response.table || !response.table.rows) return;
-
-                        const rows = response.table.rows;
-                        
-                        // Count valid non-empty rows
-                        const validRows = rows.filter(r => r.c && r.c.some(cell => cell && cell.v !== null && cell.v !== ""));
-                        const totalEngineers = validRows.length;
-
-                        // Extract hubs
-                        const hubs = new Set();
-                        validRows.forEach(r => {
-                            if (r.c) {
-                                r.c.forEach(cell => {
-                                    if (cell && cell.v && typeof cell.v === 'string') {
-                                        const val = cell.v.trim();
-                                        if (['North America', 'Europe', 'Africa', 'Middle East', 'LATAM', 'Asia', 'ANZ'].includes(val)) {
-                                            hubs.add(val);
-                                        }
-                                    }
-                                });
-                            }
-                        });
-
-                        const totalElem = document.getElementById('totalEngineers');
-                        const hubsElem = document.getElementById('totalHubs');
-
-                        if (totalElem) totalElem.innerText = totalEngineers.toLocaleString();
-                        if (hubsElem) hubsElem.innerText = hubs.size > 0 ? `Across ${hubs.size} hubs` : 'Across hubs';
-                    } catch (err) {
-                        console.error('Error parsing Google Sheets data:', err);
-                    }
-                }
-            };
-
-            const scriptElement = document.createElement('script');
-            scriptElement.src = GVIZ_URL;
-            document.body.appendChild(scriptElement);
-        }
-
-        // Static Hub data for Projects UI
+        // Hub data containing engineers and projects
         const hubsData = [
             {
                 name: "Europe",
@@ -605,6 +552,18 @@
         ];
 
         let currentFilter = 'all';
+
+        // Calculate total engineers directly from hub data
+        function updateEngineerMetrics() {
+            const totalEngineers = hubsData.reduce((acc, hub) => acc + (hub.engineers || 0), 0);
+            const totalHubs = hubsData.length;
+
+            const totalElem = document.getElementById('totalEngineers');
+            const hubsElem = document.getElementById('totalHubs');
+
+            if (totalElem) totalElem.innerText = totalEngineers.toLocaleString();
+            if (hubsElem) hubsElem.innerText = `Across ${totalHubs} hubs`;
+        }
 
         function scoreVelocity(valStr) {
             const val = parseFloat(valStr);
@@ -814,7 +773,7 @@
             if (event.target === modal) closeModal();
         });
 
-        // Initialize dashboard UI and fetch live engineer count
+        // Initialize dashboard UI on DOM ready
         document.addEventListener('DOMContentLoaded', () => {
             renderHubs();
             updateEngineerMetrics();
