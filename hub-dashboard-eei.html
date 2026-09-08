@@ -334,7 +334,7 @@
         let currentRAGFilter = 'all';
 
         const hubEngDefaults = { 
-            "Europe": 60, "Africa": 51, "North America": 165, 
+            "Europe": 60, "Africa": 51, "North America": 183, 
             "Middle East": 109, "LATAM": 64, "Asia": 220, "ANZ": 27 
         };
 
@@ -412,7 +412,6 @@
 
                             if (!hubName || !projectName || hubName.toLowerCase() === "hub") return;
 
-                            // Extract Hub Security Score from Row 3 Column H (Index 7)
                             let hubSecScore = hubSecurityDefaults[hubName] || 80;
                             if (r.c[7] && !isNaN(parseFloat(r.c[7].v)) && parseFloat(r.c[7].v) > 10) {
                                 hubSecScore = Math.round(parseFloat(r.c[7].v));
@@ -486,7 +485,7 @@
                     { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0%" },
                     { name: "MyState DO", em: "Amar Koondla", score: 83, der: "17%" }
                 ]},
-                { name: "North America", engineers: 165, securityScore: 74, projects_list: [
+                { name: "North America", engineers: 183, securityScore: 74, projects_list: [
                     { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", score: 86, der: "12%" },
                     { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", score: 83, der: "11%" },
                     { name: "NBC Mobile", em: "Tomasz Jakubas", score: 88, der: "9%" },
@@ -613,7 +612,7 @@
             container.innerHTML = '';
 
             const skillBreakdown = [
-                { hub: "North America", fe: 45, be: 70, mobile: 30, devops: 20, qa: 0 },
+                { hub: "North America", fe: 45, be: 70, mobile: 30, devops: 20, qa: 18 },
                 { hub: "Asia", fe: 60, be: 90, mobile: 40, devops: 15, qa: 15 },
                 { hub: "Middle East", fe: 30, be: 45, mobile: 20, devops: 10, qa: 4 },
                 { hub: "LATAM", fe: 20, be: 25, mobile: 10, devops: 5, qa: 4 },
@@ -636,14 +635,14 @@
                     <div class="hub-body">
                         <table class="data-table">
                             <thead>
-                                <tr><th>Role / Discipline</th><th>Count</th><th>Ratio</th></tr>
+                                <tr><th>Role / Discipline</th><th>Count</th></tr>
                             </thead>
                             <tbody>
-                                <tr><td>Backend Engineering</td><td><strong>${s.be}</strong></td><td>${Math.round((s.be/totalHubEng)*100)}%</td></tr>
-                                <tr><td>Frontend Engineering</td><td><strong>${s.fe}</strong></td><td>${Math.round((s.fe/totalHubEng)*100)}%</td></tr>
-                                <tr><td>Mobile (iOS/Android)</td><td><strong>${s.mobile}</strong></td><td>${Math.round((s.mobile/totalHubEng)*100)}%</td></tr>
-                                <tr><td>DevOps / Cloud Platform</td><td><strong>${s.devops}</strong></td><td>${Math.round((s.devops/totalHubEng)*100)}%</td></tr>
-                                <tr><td>Quality Assurance (QA)</td><td><strong>${s.qa}</strong></td><td>${Math.round((s.qa/totalHubEng)*100)}%</td></tr>
+                                <tr><td>Backend Engineering</td><td><strong>${s.be}</strong></td></tr>
+                                <tr><td>Frontend Engineering</td><td><strong>${s.fe}</strong></td></tr>
+                                <tr><td>Mobile (iOS/Android)</td><td><strong>${s.mobile}</strong></td></tr>
+                                <tr><td>DevOps / Cloud Platform</td><td><strong>${s.devops}</strong></td></tr>
+                                <tr><td>Quality Assurance (QA)</td><td><strong>${s.qa}</strong></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -657,13 +656,13 @@
             container.innerHTML = '';
 
             const maturityData = [
-                { hub: "North America", score: 88, level: "Level 4 - Managed", process: "90%", leadership: "86%" },
-                { hub: "Middle East", score: 85, level: "Level 4 - Managed", process: "88%", leadership: "82%" },
-                { hub: "Europe", score: 79, level: "Level 3 - Defined", process: "80%", leadership: "78%" },
-                { hub: "Asia", score: 82, level: "Level 4 - Managed", process: "84%", leadership: "80%" },
-                { hub: "LATAM", score: 76, level: "Level 3 - Defined", process: "78%", leadership: "74%" },
-                { hub: "Africa", score: 80, level: "Level 3 - Defined", process: "82%", leadership: "78%" },
-                { hub: "ANZ", score: 74, level: "Level 3 - Defined", process: "75%", leadership: "73%" }
+                { hub: "North America", score: 88, wow: "90%", gov: "88%", lead: "86%" },
+                { hub: "Middle East", score: 85, wow: "88%", gov: "85%", lead: "82%" },
+                { hub: "Asia", score: 82, wow: "84%", gov: "82%", lead: "80%" },
+                { hub: "Africa", score: 80, wow: "82%", gov: "80%", lead: "78%" },
+                { hub: "Europe", score: 79, wow: "80%", gov: "79%", lead: "78%" },
+                { hub: "LATAM", score: 76, wow: "78%", gov: "76%", lead: "74%" },
+                { hub: "ANZ", score: 74, wow: "75%", gov: "74%", lead: "73%" }
             ];
 
             maturityData.forEach(m => {
@@ -673,17 +672,15 @@
                     <div class="hub-header">
                         <div>
                             <div class="hub-name">${m.hub} Hub Maturity</div>
-                            <div class="hub-meta">${m.level}</div>
                         </div>
                         <div class="hub-score-badge green-score">${m.score}%</div>
                     </div>
                     <div class="hub-body">
                         <table class="data-table">
                             <tbody>
-                                <tr><td>Process Compliance</td><td><strong>${m.process}</strong></td></tr>
-                                <tr><td>Engineering Leadership</td><td><strong>${m.leadership}</strong></td></tr>
-                                <tr><td>Automation Coverage</td><td><strong>85%</strong></td></tr>
-                                <tr><td>Continuous Delivery</td><td><strong>82%</strong></td></tr>
+                                <tr><td>Ways of Working</td><td><strong>${m.wow}</strong></td></tr>
+                                <tr><td>Development & Quality Governance</td><td><strong>${m.gov}</strong></td></tr>
+                                <tr><td>Leadership & Management</td><td><strong>${m.lead}</strong></td></tr>
                             </tbody>
                         </table>
                     </div>
