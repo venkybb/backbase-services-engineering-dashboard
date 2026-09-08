@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Quality Dashboard - Engineering Excellence Index Scores</title>
@@ -880,5 +881,33 @@
 
         renderHubs();
     </script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLgLHary7wHkV2-ySU5fPnB5omcXF6gQ8EPzRISWLnYluaLRNC0-e8QWQc4Fy0pxLWf3FK6soIupJe/pub?output=csv';
+
+async function loadDashboardData() {
+  try {
+    const response = await fetch(CSV_URL);
+    const csvText = await response.text();
+
+    // Parse CSV into structured JS objects
+    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    const data = parsed.data;
+
+    // Example data structure received from sheet:
+    // [{ "Hub": "North America", "Dev Quality": "87%", "DER": "12%" }, ...]
+
+    renderDashboard(data);
+  } catch (error) {
+    console.error("Error loading live metrics from Google Sheets:", error);
+  }
+}
+
+function renderDashboard(metrics) {
+  // Populate your DOM elements with metrics data
+  console.log("Loaded Sheet Data:", metrics);
+  // Call existing render/UI functions from your Claude-generated code here
+}
+
+// Auto-load on page start
+document.addEventListener('DOMContentLoaded', loadDashboardData);
 </body>
 </html>
