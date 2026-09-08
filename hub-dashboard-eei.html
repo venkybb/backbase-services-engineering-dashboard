@@ -1,7 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+   <!-- Include PapaParse in your <head> -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+  // Replace these with your published CSV links from Google Sheets
+  const SHEET_URLS = {
+    eei: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLgLHary7wHkV2-ySU5fPnB5omcXF6gQ8EPzRISWLnYluaLRNC0-e8QWQc4Fy0pxLWf3FK6soIupJe/pubhtml',
+    maturity: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_4N9lDe5plEe1INHgxL2OFZnX7Q1iIoFJ88dNFWu2UTEqX_42rx-fWWQfwW2PYVwbWi_8q7sU2pqr/pub?output=csv',
+    skills: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs/pub?output=csv'
+  };
+
+  // State cache to avoid re-fetching clicked tabs
+  const cache = {};
+
+  async function loadSheetData(sheetType) {
+    // Show a quick loading state on your dashboard cards/table
+    showLoadingSpinner();
+
+    // Return cached data if already fetched
+    if (cache[sheetType]) {
+      renderDashboard(sheetType, cache[sheetType]);
+      return;
+    }
+
+    try {
+      const response = await fetch(SHEET_URLS[sheetType]);
+      const csvText = await response.text();
+
+      // Parse CSV into structured JS objects
+      const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+      
+      // Store in cache
+      cache[sheetType] = parsed.data;
+
+      // Render tab-specific view
+      renderDashboard(sheetType, cache[sheetType]);
+    } catch (error) {
+      console.error(`Failed to load ${sheetType} data:`, error);
+      showErrorMessage("Failed to load live metrics. Please check Google Sheet publishing settings.");
+    }
+  }
+
+  function renderDashboard(type, data) {
+    console.log(`Rendering view [${type}]:`, data);
+
+    if (type === 'eei') {
+      // Render Engineering Excellence Index cards & tables
+      renderEEIView(data);
+    } else if (type === 'maturity') {
+      // Render Hub Maturity scores & radar/bar charts
+      renderMaturityView(data);
+    } else if (type === 'skills') {
+      // Render Hub Skill Matrix grid/table
+      renderSkillMatrixView(data);
+    }
+  }
+
+  // Set up event listeners for navigation buttons
+  document.addEventListener('DOMContentLoaded', () => {
+    // Default load: EEI Quality Metrics
+    loadSheetData('eei');
+
+    // Bind button click handlers
+    document.getElementById('btn-eei')?.addEventListener('click', () => loadSheetData('eei'));
+    document.getElementById('btn-maturity')?.addEventListener('click', () => loadSheetData('maturity'));
+    document.getElementById('btn-skills')?.addEventListener('click', () => loadSheetData('skills'));
+  });
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Quality Dashboard - Engineering Excellence Index Scores</title>
