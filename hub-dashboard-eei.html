@@ -468,101 +468,132 @@
     </div>
 
     <script>
-        // Hub data containing engineers and projects
+        // Google Sheets ID for Skill Matrix
+        const SHEET_ID = '1SrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs';
+        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+        // Default Hub structure
         const hubsData = [
-            {
-                name: "Europe",
-                engineers: 60,
-                projects: 4,
-                projects_list: [
-                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", sfAccount: "31064", security: "1", der: "18%", gates: "62.5%", api: "100%", velocity: "78%" },
-                    { name: "Weatherbys", em: "Piotr Mądry", sfAccount: "9764", security: "1", der: "19%", gates: "75%", api: "50%", velocity: "82%" },
-                    { name: "GHIB", em: "Rainier Jordaan", sfAccount: "13209", security: "N/A", der: "45%", gates: "45%", api: "100%", velocity: "65%" },
-                    { name: "Jet Bank Albania", em: "Piotr Kaleta", sfAccount: "13899", security: "N/A", der: "31%", gates: "55%", api: "100%", velocity: "72%" }
-                ]
-            },
-            {
-                name: "Africa",
-                engineers: 51,
-                projects: 2,
-                projects_list: [
-                    { name: "CIH - Origination", em: "Sudhakar Krovi", sfAccount: "7665", security: "N/A", der: "6%", gates: "89%", api: "100%", velocity: "88%" },
-                    { name: "SBN", em: "Rainier Jordaan", sfAccount: "18525", security: "N/A", der: "0%", gates: "79%", api: "0%", velocity: "85%" }
-                ]
-            },
-            {
-                name: "North America",
-                engineers: 165,
-                projects: 10,
-                projects_list: [
-                    { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "12%", gates: "77%", api: "100%", velocity: "86%" },
-                    { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "11%", gates: "85%", api: "0%", velocity: "83%" },
-                    { name: "NBC Mobile", em: "Tomasz Jakubas", sfAccount: "4638", security: "N/A", der: "9%", gates: "70%", api: "0%", velocity: "88%" },
-                    { name: "BECU", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "92%" },
-                    { name: "BECU CC", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "90%" },
-                    { name: "Alliant Retail", em: "Sateesh Dommeti", sfAccount: "8904", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" },
-                    { name: "Eastern Business", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "89%" },
-                    { name: "Eastern Retail", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "87%" },
-                    { name: "TD Bank", em: "Veena Manasa Panuganti", sfAccount: "28252", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "93%" },
-                    { name: "WSECU", em: "Kireet Kovvali", sfAccount: "15626", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" }
-                ]
-            },
-            {
-                name: "Middle East",
-                engineers: 109,
-                projects: 3,
-                projects_list: [
-                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", sfAccount: "9774", security: "N/A", der: "0%", gates: "65%", api: "100%", velocity: "80%" },
-                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", sfAccount: "9771", security: "N/A", der: "3%", gates: "100%", api: "100%", velocity: "95%" },
-                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", sfAccount: "30437", security: "N/A", der: "0%", gates: "79%", api: "100%", velocity: "86%" }
-                ]
-            },
-            {
-                name: "LATAM",
-                engineers: 64,
-                projects: 3,
-                projects_list: [
-                    { name: "Bineo", em: "José Luis Velázquez Lara", sfAccount: "7045", security: "N/A", der: "20%", gates: "100%", api: "100%", velocity: "84%" },
-                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", sfAccount: "7871", security: "N/A", der: "10%", gates: "86%", api: "100%", velocity: "81%" },
-                    { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", sfAccount: "13619", security: "N/A", der: "33%", gates: "33%", api: "100%", velocity: "55%" }
-                ]
-            },
-            {
-                name: "Asia",
-                engineers: 220,
-                projects: 6,
-                projects_list: [
-                    { name: "HDFC", em: "Kiran Kumar Gudimalla", sfAccount: "23058", security: "N/A", der: "8%", gates: "65%", api: "100%", velocity: "82%" },
-                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", sfAccount: "17892", security: "0.93", der: "3%", gates: "88%", api: "100%", velocity: "90%" },
-                    { name: "BDO Online", em: "Malay Jain", sfAccount: "17892", security: "0.89", der: "15%", gates: "77%", api: "100%", velocity: "85%" },
-                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.79", der: "0%", gates: "75%", api: "0%", velocity: "80%" },
-                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.75", der: "0%", gates: "75%", api: "0%", velocity: "78%" },
-                    { name: "China Bank of Philippines", em: "Divya Appidi", sfAccount: "21993", security: "0.82", der: "0%", gates: "85%", api: "100%", velocity: "88%" }
-                ]
-            },
-            {
-                name: "ANZ",
-                engineers: 27,
-                projects: 2,
-                projects_list: [
-                    { name: "MyState MSE", em: "Krishna Kanth Vishnubhotla", sfAccount: "21227", security: "N/A", der: "0%", gates: "68%", api: "0%", velocity: "75%" },
-                    { name: "MyState DO", em: "Krishna Kanth Vishnubhotla", sfAccount: "N/A", security: "N/A", der: "17%", gates: "86%", api: "100%", velocity: "83%" }
-                ]
-            }
+            { name: "Europe", engineers: 0, projects: 4, projects_list: [
+                { name: "Arbuthnot Latham", em: "Adam Kopycinski", sfAccount: "31064", security: "1", der: "18%", gates: "62.5%", api: "100%", velocity: "78%" },
+                { name: "Weatherbys", em: "Piotr Mądry", sfAccount: "9764", security: "1", der: "19%", gates: "75%", api: "50%", velocity: "82%" },
+                { name: "GHIB", em: "Rainier Jordaan", sfAccount: "13209", security: "N/A", der: "45%", gates: "45%", api: "100%", velocity: "65%" },
+                { name: "Jet Bank Albania", em: "Piotr Kaleta", sfAccount: "13899", security: "N/A", der: "31%", gates: "55%", api: "100%", velocity: "72%" }
+            ]},
+            { name: "Africa", engineers: 0, projects: 2, projects_list: [
+                { name: "CIH - Origination", em: "Sudhakar Krovi", sfAccount: "7665", security: "N/A", der: "6%", gates: "89%", api: "100%", velocity: "88%" },
+                { name: "SBN", em: "Rainier Jordaan", sfAccount: "18525", security: "N/A", der: "0%", gates: "79%", api: "0%", velocity: "85%" }
+            ]},
+            { name: "North America", engineers: 0, projects: 10, projects_list: [
+                { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "12%", gates: "77%", api: "100%", velocity: "86%" },
+                { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "11%", gates: "85%", api: "0%", velocity: "83%" },
+                { name: "NBC Mobile", em: "Tomasz Jakubas", sfAccount: "4638", security: "N/A", der: "9%", gates: "70%", api: "0%", velocity: "88%" },
+                { name: "BECU", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "92%" },
+                { name: "BECU CC", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "90%" },
+                { name: "Alliant Retail", em: "Sateesh Dommeti", sfAccount: "8904", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" },
+                { name: "Eastern Business", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "89%" },
+                { name: "Eastern Retail", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "87%" },
+                { name: "TD Bank", em: "Veena Manasa Panuganti", sfAccount: "28252", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "93%" },
+                { name: "WSECU", em: "Kireet Kovvali", sfAccount: "15626", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" }
+            ]},
+            { name: "Middle East", engineers: 0, projects: 3, projects_list: [
+                { name: "Banque Saudi Fransi", em: "Vinay Uddandam", sfAccount: "9774", security: "N/A", der: "0%", gates: "65%", api: "100%", velocity: "80%" },
+                { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", sfAccount: "9771", security: "N/A", der: "3%", gates: "100%", api: "100%", velocity: "95%" },
+                { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", sfAccount: "30437", security: "N/A", der: "0%", gates: "79%", api: "100%", velocity: "86%" }
+            ]},
+            { name: "LATAM", engineers: 0, projects: 3, projects_list: [
+                { name: "Bineo", em: "José Luis Velázquez Lara", sfAccount: "7045", security: "N/A", der: "20%", gates: "100%", api: "100%", velocity: "84%" },
+                { name: "Banco Caja Social", em: "Rodrigo Arroyo", sfAccount: "7871", security: "N/A", der: "10%", gates: "86%", api: "100%", velocity: "81%" },
+                { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", sfAccount: "13619", security: "N/A", der: "33%", gates: "33%", api: "100%", velocity: "55%" }
+            ]},
+            { name: "Asia", engineers: 0, projects: 6, projects_list: [
+                { name: "HDFC", em: "Kiran Kumar Gudimalla", sfAccount: "23058", security: "N/A", der: "8%", gates: "65%", api: "100%", velocity: "82%" },
+                { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", sfAccount: "17892", security: "0.93", der: "3%", gates: "88%", api: "100%", velocity: "90%" },
+                { name: "BDO Online", em: "Malay Jain", sfAccount: "17892", security: "0.89", der: "15%", gates: "77%", api: "100%", velocity: "85%" },
+                { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.79", der: "0%", gates: "75%", api: "0%", velocity: "80%" },
+                { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.75", der: "0%", gates: "75%", api: "0%", velocity: "78%" },
+                { name: "China Bank of Philippines", em: "Divya Appidi", sfAccount: "21993", security: "0.82", der: "0%", gates: "85%", api: "100%", velocity: "88%" }
+            ]},
+            { name: "ANZ", engineers: 0, projects: 2, projects_list: [
+                { name: "MyState MSE", em: "Krishna Kanth Vishnubhotla", sfAccount: "21227", security: "N/A", der: "0%", gates: "68%", api: "0%", velocity: "75%" },
+                { name: "MyState DO", em: "Krishna Kanth Vishnubhotla", sfAccount: "N/A", security: "N/A", der: "17%", gates: "86%", api: "100%", velocity: "83%" }
+            ]}
         ];
 
         let currentFilter = 'all';
 
-        // Calculate total engineers directly from hub data
-        function updateEngineerMetrics() {
-            const totalEngineers = hubsData.reduce((acc, hub) => acc + (hub.engineers || 0), 0);
-            const totalHubs = hubsData.length;
+        // Dynamically fetch Skill Matrix sheet and aggregate engineer counts by Hub
+        function fetchLiveSkillMatrixData() {
+            window.google = window.google || {};
+            window.google.visualization = window.google.visualization || {};
+            window.google.visualization.Query = {
+                setResponse: function(response) {
+                    try {
+                        if (!response || !response.table || !response.table.rows) {
+                            fallbackToDefaultCounts();
+                            return;
+                        }
 
-            const totalElem = document.getElementById('totalEngineers');
-            const hubsElem = document.getElementById('totalHubs');
+                        const rows = response.table.rows;
+                        const hubCounts = {};
+                        let totalEngineersCount = 0;
 
-            if (totalElem) totalElem.innerText = totalEngineers.toLocaleString();
-            if (hubsElem) hubsElem.innerText = `Across ${totalHubs} hubs`;
+                        // Normalize and count engineers per hub
+                        rows.forEach(r => {
+                            if (r.c) {
+                                r.c.forEach(cell => {
+                                    if (cell && cell.v && typeof cell.v === 'string') {
+                                        const val = cell.v.trim();
+                                        const matchingHub = hubsData.find(h => h.name.toLowerCase() === val.toLowerCase());
+                                        if (matchingHub) {
+                                            hubCounts[matchingHub.name] = (hubCounts[matchingHub.name] || 0) + 1;
+                                            totalEngineersCount++;
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        // Apply aggregated engineer counts to hubsData
+                        hubsData.forEach(hub => {
+                            if (hubCounts[hub.name]) {
+                                hub.engineers = hubCounts[hub.name];
+                            }
+                        });
+
+                        // Update global banner DOM
+                        const totalElem = document.getElementById('totalEngineers');
+                        const hubsElem = document.getElementById('totalHubs');
+
+                        if (totalElem) totalElem.innerText = totalEngineersCount > 0 ? totalEngineersCount.toLocaleString() : "696";
+                        if (hubsElem) hubsElem.innerText = `Across ${hubsData.length} hubs`;
+
+                        // Re-render Hub cards with live counts
+                        renderHubs();
+
+                    } catch (err) {
+                        console.error('Error parsing live Skill Matrix data:', err);
+                        fallbackToDefaultCounts();
+                    }
+                }
+            };
+
+            const scriptElement = document.createElement('script');
+            scriptElement.src = GVIZ_URL;
+            document.body.appendChild(scriptElement);
+        }
+
+        function fallbackToDefaultCounts() {
+            const defaults = { "Europe": 60, "Africa": 51, "North America": 165, "Middle East": 109, "LATAM": 64, "Asia": 220, "ANZ": 27 };
+            let total = 0;
+            hubsData.forEach(h => {
+                h.engineers = defaults[h.name] || 0;
+                total += h.engineers;
+            });
+
+            document.getElementById('totalEngineers').innerText = total.toLocaleString();
+            document.getElementById('totalHubs').innerText = `Across ${hubsData.length} hubs`;
+            renderHubs();
         }
 
         function scoreVelocity(valStr) {
@@ -773,10 +804,10 @@
             if (event.target === modal) closeModal();
         });
 
-        // Initialize dashboard UI on DOM ready
+        // Initialize dashboard UI and fetch dynamic Skill Matrix metrics
         document.addEventListener('DOMContentLoaded', () => {
             renderHubs();
-            updateEngineerMetrics();
+            fetchLiveSkillMatrixData();
         });
     </script>
 </body>
