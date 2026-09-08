@@ -343,6 +343,8 @@
             "Middle East": 88, "Asia": 80, "Europe": 82, "LATAM": 78
         };
 
+        const excludedProjects = ["east west bank retail", "east west bank business", "east west"];
+
         function switchView(paneId, evt) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.classList.remove('active'));
@@ -423,6 +425,9 @@
 
                             if (!hubName || !projectName || hubName.toLowerCase() === "hub") return;
 
+                            // Explicitly exclude East West Bank projects
+                            if (excludedProjects.some(ex => projectName.toLowerCase().includes(ex))) return;
+
                             let hubSecScore = hubSecurityDefaults[hubName] || 80;
                             if (r.c[7] && !isNaN(parseFloat(r.c[7].v)) && parseFloat(r.c[7].v) > 10) {
                                 hubSecScore = Math.round(parseFloat(r.c[7].v));
@@ -496,6 +501,12 @@
                     { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0%" },
                     { name: "MyState DO", em: "Amar Koondla", score: 83, der: "17%" }
                 ]},
+                { name: "Asia", engineers: 220, securityScore: 80, projects_list: [
+                    { name: "HDFC", em: "Kiran Kumar Gudimalla", score: 82, der: "8%" },
+                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", score: 90, der: "3%" },
+                    { name: "BDO Online", em: "Malay Jain", score: 85, der: "15%" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0%" }
+                ]},
                 { name: "North America", engineers: 183, securityScore: 74, projects_list: [
                     { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", score: 86, der: "12%" },
                     { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", score: 83, der: "11%" },
@@ -512,14 +523,6 @@
                     { name: "Banque Saudi Fransi", em: "Vinay Uddandam", score: 80, der: "0%" },
                     { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", score: 95, der: "3%" },
                     { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", score: 86, der: "0%" }
-                ]},
-                { name: "Asia", engineers: 220, securityScore: 80, projects_list: [
-                    { name: "HDFC", em: "Kiran Kumar Gudimalla", score: 82, der: "8%" },
-                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", score: 90, der: "3%" },
-                    { name: "BDO Online", em: "Malay Jain", score: 85, der: "15%" },
-                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", score: 80, der: "0%" },
-                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", score: 78, der: "0%" },
-                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0%" }
                 ]},
                 { name: "Europe", engineers: 60, securityScore: 82, projects_list: [
                     { name: "Arbuthnot Latham", em: "Adam Kopycinski", score: 78, der: "18%" },
