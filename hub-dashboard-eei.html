@@ -362,6 +362,12 @@
             renderEEIGrid();
         }
 
+        function extractDirectSheetValue(cellObj) {
+            if (!cellObj || cellObj.v === null || cellObj.v === undefined) return "0";
+            if (cellObj.f) return cellObj.f.toString().trim();
+            return cellObj.v.toString().trim();
+        }
+
         function fetchLiveSheetData() {
             window.google = window.google || {};
             window.google.visualization = window.google.visualization || {};
@@ -376,7 +382,7 @@
                         const cols = response.table.cols || [];
                         const rows = response.table.rows;
 
-                        let hubIdx = -1, projIdx = -1, emIdx = -1, activeIdx = -1, derIdx = -1, scoreIdx = -1, securityIdx = 7;
+                        let hubIdx = -1, projIdx = -1, emIdx = -1, activeIdx = -1, derIdx = -1, scoreIdx = -1;
 
                         cols.forEach((c, idx) => {
                             const lbl = (c.label || c.id || "").toString().trim().toLowerCase();
@@ -386,7 +392,6 @@
                             if (lbl.includes("tracking") || lbl.includes("actively")) activeIdx = idx;
                             if (lbl.includes("der") || lbl.includes("defect")) derIdx = idx;
                             if (lbl.includes("score") || lbl.includes("eei") || lbl.includes("quality")) scoreIdx = idx;
-                            if (lbl.includes("security")) securityIdx = idx;
                         });
 
                         const hubsMap = {};
@@ -395,7 +400,6 @@
                             if (!r.c) return;
 
                             const getVal = (i) => (i >= 0 && r.c[i] && r.c[i].v !== null && r.c[i].v !== undefined) ? r.c[i].v.toString().trim() : "";
-                            const getFmt = (i) => (i >= 0 && r.c[i] && r.c[i].f) ? r.c[i].f.toString().trim() : getVal(i);
 
                             let isTracked = false;
                             if (activeIdx !== -1) {
@@ -430,7 +434,7 @@
                                 }
                             }
 
-                            const derVal = getFmt(derIdx !== -1 ? derIdx : 4) || "0%";
+                            const directDER = extractDirectSheetValue(r.c[derIdx !== -1 ? derIdx : 4]);
 
                             if (!hubsMap[hubName]) {
                                 hubsMap[hubName] = {
@@ -446,7 +450,7 @@
                                     name: projectName,
                                     em: emName,
                                     score: qualityScore,
-                                    der: derVal
+                                    der: directDER
                                 });
                             }
                         });
@@ -478,37 +482,37 @@
             hubsData = [
                 { name: "Africa", engineers: 51, securityScore: 96, projects_list: [
                     { name: "CIH - Origination", em: "Sudhakar Krovi", score: 88, der: "6%" },
-                    { name: "CIH - Retail", em: "Sudhakar Krovi", score: 85, der: "5%" },
-                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", score: 84, der: "6%" }
+                    { name: "CIH - Retail", em: "Sudhakar Krovi", score: 85, der: "0" },
+                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", score: 84, der: "0" }
                 ]},
                 { name: "ANZ", engineers: 27, securityScore: 85, projects_list: [
-                    { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0%" },
+                    { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0" },
                     { name: "MyState DO", em: "Amar Koondla", score: 83, der: "17%" }
                 ]},
                 { name: "North America", engineers: 183, securityScore: 74, projects_list: [
                     { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", score: 86, der: "12%" },
                     { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", score: 83, der: "11%" },
                     { name: "NBC Mobile", em: "Tomasz Jakubas", score: 88, der: "9%" },
-                    { name: "BECU", em: "Rodrigo Monroy", score: 92, der: "0%" },
-                    { name: "BECU CC", em: "Rodrigo Monroy", score: 90, der: "0%" },
-                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "0%" },
-                    { name: "Eastern Business", em: "Arshad Khan", score: 89, der: "0%" },
-                    { name: "Eastern Retail", em: "Arshad Khan", score: 87, der: "0%" },
-                    { name: "TD Bank", em: "Veena Manasa Panuganti", score: 93, der: "0%" },
-                    { name: "WSECU", em: "Kireet Kovvali", score: 91, der: "0%" }
+                    { name: "BECU", em: "Rodrigo Monroy", score: 92, der: "15%" },
+                    { name: "BECU CC", em: "Rodrigo Monroy", score: 90, der: "15%" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "0" },
+                    { name: "Eastern Business", em: "Arshad Khan", score: 89, der: "4%" },
+                    { name: "Eastern Retail", em: "Arshad Khan", score: 87, der: "6%" },
+                    { name: "TD Bank", em: "Veena Manasa Panuganti", score: 93, der: "8%" },
+                    { name: "WSECU", em: "Kireet Kovvali", score: 91, der: "0" }
                 ]},
                 { name: "Middle East", engineers: 109, securityScore: 88, projects_list: [
-                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", score: 80, der: "0%" },
+                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", score: 80, der: "0" },
                     { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", score: 95, der: "3%" },
-                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", score: 86, der: "0%" }
+                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", score: 86, der: "0" }
                 ]},
                 { name: "Asia", engineers: 220, securityScore: 80, projects_list: [
                     { name: "HDFC", em: "Kiran Kumar Gudimalla", score: 82, der: "8%" },
                     { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", score: 90, der: "3%" },
                     { name: "BDO Online", em: "Malay Jain", score: 85, der: "15%" },
-                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", score: 80, der: "0%" },
-                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", score: 78, der: "0%" },
-                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0%" }
+                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", score: 80, der: "0" },
+                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", score: 78, der: "0" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0" }
                 ]},
                 { name: "Europe", engineers: 60, securityScore: 82, projects_list: [
                     { name: "Arbuthnot Latham", em: "Adam Kopycinski", score: 78, der: "18%" },
