@@ -262,7 +262,7 @@
         <header>
             <div>
                 <h1>Backbase Services Engineering Dashboard</h1>
-                <p class="subtitle">Live Quality Metrics & Hub Security Scores</p>
+                <p class="subtitle">Live Quality Metrics & Security Scores</p>
             </div>
         </header>
 
@@ -391,7 +391,7 @@
 
                         const hubsMap = {};
 
-                        rows.forEach((r, rowIdx) => {
+                        rows.forEach((r) => {
                             if (!r.c) return;
 
                             const getVal = (i) => (i >= 0 && r.c[i] && r.c[i].v !== null && r.c[i].v !== undefined) ? r.c[i].v.toString().trim() : "";
@@ -543,12 +543,16 @@
             let green = 0, amber = 0, red = 0, total = 0;
 
             hubsData.forEach(hub => {
+                let hubScoreSum = 0;
                 hub.projects_list.forEach(p => {
+                    hubScoreSum += p.score;
                     if (p.score >= 80) green++;
                     else if (p.score >= 60) amber++;
                     else red++;
                     total++;
                 });
+
+                const hubAvgScore = hub.projects_list.length > 0 ? Math.round(hubScoreSum / hub.projects_list.length) : 0;
 
                 const filteredProjects = hub.projects_list.filter(p => {
                     if (currentRAGFilter === 'green') return p.score >= 80;
@@ -566,7 +570,7 @@
                     <tr>
                         <td><strong>${p.name}</strong><br><small style="color:#888">${p.em}</small></td>
                         <td>${p.der}</td>
-                        <td><span class="eei-pill ${getStatusClass(p.score)}">${p.score}</span></td>
+                        <td><span class="eei-pill ${getStatusClass(hub.securityScore)}">${hub.securityScore}</span></td>
                     </tr>
                 `).join('');
 
@@ -577,8 +581,8 @@
                             <div class="hub-meta">👥 ${hub.engineers} Engineers | 📊 ${hub.projects_list.length} Projects</div>
                         </div>
                         <div class="hub-score-badge">
-                            <div class="hub-score-title">Security Score</div>
-                            <div class="hub-score-val">${hub.securityScore}</div>
+                            <div class="hub-score-title">Quality Score</div>
+                            <div class="hub-score-val">${hubAvgScore}</div>
                         </div>
                     </div>
                     <div class="hub-body">
@@ -587,7 +591,7 @@
                                 <tr>
                                     <th>Project</th>
                                     <th>DER</th>
-                                    <th>Quality Score</th>
+                                    <th>Security Score</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsHtml}</tbody>
