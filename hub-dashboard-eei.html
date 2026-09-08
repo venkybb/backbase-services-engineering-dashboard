@@ -248,7 +248,7 @@
         <header>
             <div>
                 <h1>Backbase Services Engineering Dashboard</h1>
-                <p class="subtitle">Live Quality Metrics & EEI Scores (Actively Tracking = Yes)</p>
+                <p class="subtitle">Live Quality Metrics & EEI Scores</p>
             </div>
         </header>
 
@@ -268,12 +268,12 @@
                     <div class="summary-subtext" id="totalHubs">Across -- Hubs</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Actively Tracked Projects</div>
+                    <div class="summary-label">Total Projects</div>
                     <div class="summary-value" id="totalProjects">--</div>
-                    <div class="summary-subtext">Actively Tracking = Yes</div>
+                    <div class="summary-subtext">Quality Index Metrics</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Active Project Status</div>
+                    <div class="summary-label">Project Status Overview</div>
                     <div class="rag-status">
                         <div class="rag-badge" onclick="filterByRAG('green')">
                             <div class="rag-indicator green" id="greenCount">0</div>
@@ -555,7 +555,7 @@
                     <div class="hub-header">
                         <div>
                             <div class="hub-name">${hub.name} Hub</div>
-                            <div class="hub-meta">👥 ${hub.engineers} Engineers | 📊 ${hub.projects_list.length} Actively Tracked Projects</div>
+                            <div class="hub-meta">👥 ${hub.engineers} Engineers | 📊 ${hub.projects_list.length} Projects</div>
                         </div>
                         <div class="hub-score-badge ${getStatusClass(hubAvg)}">${hubAvg} EEI</div>
                     </div>
