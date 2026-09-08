@@ -19,11 +19,7 @@
             --text-light: #7F8C8D;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Roboto, sans-serif;
@@ -33,11 +29,7 @@
             font-size: 14px;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 28px 24px;
-        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 28px 24px; }
 
         .rag-section {
             background: white;
@@ -54,28 +46,14 @@
             margin-bottom: 24px;
         }
 
-        .rag-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .rag-title { font-size: 24px; font-weight: 700; color: var(--primary); }
 
-        .rag-status {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+        .rag-status { display: flex; gap: 12px; align-items: center; }
 
         .rag-indicator {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 14px;
         }
 
         .rag-indicator.red { background: var(--red); }
@@ -83,334 +61,133 @@
         .rag-indicator.green { background: var(--green); }
 
         .rag-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-light);
-            margin-top: 4px;
-            text-align: center;
+            font-size: 12px; font-weight: 600; color: var(--text-light);
+            margin-top: 4px; text-align: center;
         }
 
         .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin-top: 20px;
         }
 
         .summary-card {
             background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 16px; text-align: center;
         }
 
         .summary-label {
-            font-size: 12px;
-            color: var(--text-light);
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 12px; color: var(--text-light);
+            text-transform: uppercase; font-weight: 600; margin-bottom: 8px;
         }
 
-        .summary-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .summary-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+        .summary-change { font-size: 12px; margin-top: 4px; color: var(--text-light); }
 
-        .summary-change {
-            font-size: 12px;
-            margin-top: 4px;
-            color: var(--text-light);
-        }
-
-        .hub-section {
-            margin-bottom: 32px;
-        }
-
+        .hub-section { margin-bottom: 32px; }
         .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 18px;
-            letter-spacing: 0.2px;
+            font-size: 18px; font-weight: 700; color: var(--primary);
+            margin-bottom: 18px; letter-spacing: 0.2px;
         }
 
         .hub-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 18px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 18px;
         }
 
         .hub-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s;
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s;
         }
 
-        .hub-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-            transform: translateY(-2px);
-        }
+        .hub-card:hover { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); transform: translateY(-2px); }
 
         .hub-header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 14px 16px;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
+            color: white; padding: 14px 16px; border-bottom: 2px solid rgba(255,255,255,0.2);
         }
 
         .hub-name {
-            font-size: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-            letter-spacing: 0.3px;
+            font-size: 15px; font-weight: 700; display: flex;
+            align-items: center; gap: 8px; margin-bottom: 6px; letter-spacing: 0.3px;
         }
 
-        .hub-stats {
-            display: flex;
-            gap: 16px;
-            font-size: 12px;
-            font-weight: 500;
-            opacity: 0.95;
-        }
-
-        .hub-content {
-            padding: 0;
-            max-height: 500px;
-            overflow-y: auto;
-        }
+        .hub-stats { display: flex; gap: 16px; font-size: 12px; font-weight: 500; opacity: 0.95; }
+        .hub-content { padding: 0; max-height: 500px; overflow-y: auto; }
 
         .project-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-            gap: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 13px; gap: 12px;
         }
 
-        .project-item:last-child {
-            border-bottom: none;
-        }
+        .project-item:last-child { border-bottom: none; }
+        .project-item:hover { background: #f9f9f9; }
 
-        .project-item:hover {
-            background: #f9f9f9;
-        }
+        .project-name { display: flex; align-items: flex-start; gap: 8px; flex: 1; color: var(--text); min-width: 0; }
+        .project-name > div { flex: 1; min-width: 0; }
+        .project-name div:first-of-type { font-weight: 600; font-size: 13px; line-height: 1.4; word-break: break-word; }
+        .project-name div:last-of-type { font-size: 11px; color: #888; margin-top: 2px; }
 
-        .project-name {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            flex: 1;
-            color: var(--text);
-            min-width: 0;
-        }
-
-        .project-name > div {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .project-name div:first-of-type {
-            font-weight: 600;
-            font-size: 13px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-
-        .project-name div:last-of-type {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .rag-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
+        .rag-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
         .rag-dot.green { background: var(--green); }
         .rag-dot.amber { background: var(--amber); }
         .rag-dot.red { background: var(--red); }
 
-        .project-status {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: center;
-            text-align: center;
-        }
+        .project-status { display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
 
         .eei-score {
-            font-weight: 700;
-            font-size: 14px;
-            padding: 4px 8px;
-            border-radius: 3px;
-            background: #f0f0f0;
-            min-width: 50px;
+            font-weight: 700; font-size: 14px; padding: 4px 8px; border-radius: 3px;
+            background: #f0f0f0; min-width: 50px;
         }
 
-        .eei-score.green-score {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .eei-score.amber-score {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .eei-score.red-score {
-            background: #f8d7da;
-            color: #721c24;
-        }
+        .eei-score.green-score { background: #d4edda; color: #155724; }
+        .eei-score.amber-score { background: #fff3cd; color: #856404; }
+        .eei-score.red-score { background: #f8d7da; color: #721c24; }
 
         .view-details {
-            background: var(--primary);
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            white-space: nowrap;
+            background: var(--primary); color: white; padding: 6px 10px;
+            border-radius: 4px; text-decoration: none; font-size: 11px;
+            font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap;
         }
 
-        .view-details:hover {
-            background: var(--secondary);
-        }
+        .view-details:hover { background: var(--secondary); }
 
         .modal {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;
         }
 
-        .modal.show {
-            display: flex;
-        }
+        .modal.show { display: flex; }
 
         .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 32px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
+            background: white; border-radius: 12px; padding: 32px;
+            max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         .modal-close {
-            float: right;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-light);
+            float: right; background: none; border: none; font-size: 24px;
+            cursor: pointer; color: var(--text-light);
         }
 
-        .modal-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 20px;
-            clear: both;
-        }
-
-        .modal-section {
-            margin-bottom: 20px;
-        }
-
-        .modal-section-title {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-light);
-            margin-bottom: 12px;
-        }
-
-        .modal-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-        }
-
-        .modal-row:last-child {
-            border-bottom: none;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 12px;
-        }
-
-        .metric-name {
-            font-weight: 500;
-            flex: 1;
-        }
-
-        .metric-value {
-            font-weight: 600;
-            min-width: 80px;
-            text-align: right;
-        }
-
-        .metric-weight {
-            color: #888;
-            font-size: 11px;
-            min-width: 60px;
-            text-align: right;
-        }
+        .modal-title { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 20px; clear: both; }
+        .modal-section { margin-bottom: 20px; }
+        .modal-section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; }
+        .modal-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .modal-row:last-child { border-bottom: none; }
+        .metric-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px; }
+        .metric-name { font-weight: 500; flex: 1; }
+        .metric-value { font-weight: 600; min-width: 80px; text-align: right; }
+        .metric-weight { color: #888; font-size: 11px; min-width: 60px; text-align: right; }
 
         .hub-eei-summary {
             background: linear-gradient(135deg, #F5F7FA 0%, #FFFFFF 100%);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
+            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
         }
 
-        .hub-eei-title {
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .hub-eei-score {
-            font-size: 18px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 3px;
-        }
+        .hub-eei-title { font-weight: 600; color: var(--text); }
+        .hub-eei-score { font-size: 18px; font-weight: 700; padding: 4px 8px; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -458,7 +235,6 @@
         </div>
     </div>
 
-    <!-- Modal for Project Details -->
     <div class="modal" id="projectModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">×</button>
@@ -468,65 +244,22 @@
     </div>
 
     <script>
-        // Exact Skill Matrix engineer breakdown
-        const hubsData = [
-            { name: "Europe", engineers: 60, projects: 4, projects_list: [
-                { name: "Arbuthnot Latham", em: "Adam Kopycinski", sfAccount: "31064", security: "1", der: "18%", gates: "62.5%", api: "100%", velocity: "78%" },
-                { name: "Weatherbys", em: "Piotr Mądry", sfAccount: "9764", security: "1", der: "19%", gates: "75%", api: "50%", velocity: "82%" },
-                { name: "GHIB", em: "Rainier Jordaan", sfAccount: "13209", security: "N/A", der: "45%", gates: "45%", api: "100%", velocity: "65%" },
-                { name: "Jet Bank Albania", em: "Piotr Kaleta", sfAccount: "13899", security: "N/A", der: "31%", gates: "55%", api: "100%", velocity: "72%" }
-            ]},
-            { name: "Africa", engineers: 51, projects: 2, projects_list: [
-                { name: "CIH - Origination", em: "Sudhakar Krovi", sfAccount: "7665", security: "N/A", der: "6%", gates: "89%", api: "100%", velocity: "88%" },
-                { name: "SBN", em: "Rainier Jordaan", sfAccount: "18525", security: "N/A", der: "0%", gates: "79%", api: "0%", velocity: "85%" }
-            ]},
-            { name: "North America", engineers: 165, projects: 10, projects_list: [
-                { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "12%", gates: "77%", api: "100%", velocity: "86%" },
-                { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", sfAccount: "1071", security: "N/A", der: "11%", gates: "85%", api: "0%", velocity: "83%" },
-                { name: "NBC Mobile", em: "Tomasz Jakubas", sfAccount: "4638", security: "N/A", der: "9%", gates: "70%", api: "0%", velocity: "88%" },
-                { name: "BECU", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "92%" },
-                { name: "BECU CC", em: "Rodrigo Monroy", sfAccount: "7369", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "90%" },
-                { name: "Alliant Retail", em: "Sateesh Dommeti", sfAccount: "8904", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" },
-                { name: "Eastern Business", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "89%" },
-                { name: "Eastern Retail", em: "Arshad Khan", sfAccount: "6722", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "87%" },
-                { name: "TD Bank", em: "Veena Manasa Panuganti", sfAccount: "28252", security: "Yes", der: "0%", gates: "89%", api: "100%", velocity: "93%" },
-                { name: "WSECU", em: "Kireet Kovvali", sfAccount: "15626", security: "N/A", der: "0%", gates: "89%", api: "100%", velocity: "91%" }
-            ]},
-            { name: "Middle East", engineers: 109, projects: 3, projects_list: [
-                { name: "Banque Saudi Fransi", em: "Vinay Uddandam", sfAccount: "9774", security: "N/A", der: "0%", gates: "65%", api: "100%", velocity: "80%" },
-                { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", sfAccount: "9771", security: "N/A", der: "3%", gates: "100%", api: "100%", velocity: "95%" },
-                { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", sfAccount: "30437", security: "N/A", der: "0%", gates: "79%", api: "100%", velocity: "86%" }
-            ]},
-            { name: "LATAM", engineers: 64, projects: 3, projects_list: [
-                { name: "Bineo", em: "José Luis Velázquez Lara", sfAccount: "7045", security: "N/A", der: "20%", gates: "100%", api: "100%", velocity: "84%" },
-                { name: "Banco Caja Social", em: "Rodrigo Arroyo", sfAccount: "7871", security: "N/A", der: "10%", gates: "86%", api: "100%", velocity: "81%" },
-                { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", sfAccount: "13619", security: "N/A", der: "33%", gates: "33%", api: "100%", velocity: "55%" }
-            ]},
-            { name: "Asia", engineers: 220, projects: 6, projects_list: [
-                { name: "HDFC", em: "Kiran Kumar Gudimalla", sfAccount: "23058", security: "N/A", der: "8%", gates: "65%", api: "100%", velocity: "82%" },
-                { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", sfAccount: "17892", security: "0.93", der: "3%", gates: "88%", api: "100%", velocity: "90%" },
-                { name: "BDO Online", em: "Malay Jain", sfAccount: "17892", security: "0.89", der: "15%", gates: "77%", api: "100%", velocity: "85%" },
-                { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.79", der: "0%", gates: "75%", api: "0%", velocity: "80%" },
-                { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", sfAccount: "22181", security: "0.75", der: "0%", gates: "75%", api: "0%", velocity: "78%" },
-                { name: "China Bank of Philippines", em: "Divya Appidi", sfAccount: "21993", security: "0.82", der: "0%", gates: "85%", api: "100%", velocity: "88%" }
-            ]},
-            { name: "ANZ", engineers: 27, projects: 2, projects_list: [
-                { name: "MyState MSE", em: "Krishna Kanth Vishnubhotla", sfAccount: "21227", security: "N/A", der: "0%", gates: "68%", api: "0%", velocity: "75%" },
-                { name: "MyState DO", em: "Krishna Kanth Vishnubhotla", sfAccount: "N/A", security: "N/A", der: "17%", gates: "86%", api: "100%", velocity: "83%" }
-            ]}
-        ];
+        // Google Sheet ID for Global Quality Metrics
+        const QUALITY_SHEET_ID = '1LVaYLISkP4F_dCuN4vxASSMt7xB2YFNNCmFUawXYKNk';
+        const GVIZ_QUALITY_URL = `https://docs.google.com/spreadsheets/d/${QUALITY_SHEET_ID}/gviz/tq?tqx=out:json&gid=644737480`;
 
+        // Skill Matrix Hub Engineer counts fallback
+        const hubEngineerDefaults = {
+            "Europe": 60, "Africa": 51, "North America": 165,
+            "Middle East": 109, "LATAM": 64, "Asia": 220, "ANZ": 27
+        };
+
+        let dynamicHubsData = [];
         let currentFilter = 'all';
-
-        function updateEngineerMetrics() {
-            const totalEngineers = hubsData.reduce((acc, hub) => acc + hub.engineers, 0);
-            document.getElementById('totalEngineers').innerText = totalEngineers.toLocaleString();
-            document.getElementById('totalHubs').innerText = `Across ${hubsData.length} hubs`;
-        }
 
         function scoreVelocity(valStr) {
             const val = parseFloat(valStr);
-            if (isNaN(val)) return 0;
+            if (isNaN(val)) return 50;
             if (val >= 85) return 100;
             if (val >= 70) return 75;
             return 50;
@@ -534,7 +267,7 @@
 
         function scoreDER(valStr) {
             const val = parseFloat(valStr);
-            if (isNaN(val)) return 0;
+            if (isNaN(val)) return 50;
             if (val <= 10) return 100;
             if (val <= 20) return 75;
             return 50;
@@ -542,14 +275,14 @@
 
         function scoreQualityGates(valStr) {
             const val = parseFloat(valStr);
-            if (isNaN(val)) return 0;
+            if (isNaN(val)) return 50;
             if (val >= 90) return 100;
             if (val >= 80) return 75;
             return 50;
         }
 
         function scoreSecurity(secVal) {
-            if (secVal === "N/A" || secVal === "nan") return 50;
+            if (!secVal || secVal === "N/A" || secVal === "nan") return 50;
             let val = secVal === "Yes" ? 1.0 : parseFloat(secVal);
             if (isNaN(val)) return 50;
             if (val > 0.80) return 100;
@@ -594,13 +327,85 @@
             renderHubs();
         }
 
+        function fetchQualitySheetData() {
+            window.google = window.google || {};
+            window.google.visualization = window.google.visualization || {};
+            window.google.visualization.Query = {
+                setResponse: function(response) {
+                    try {
+                        if (!response || !response.table || !response.table.rows) return;
+
+                        const rows = response.table.rows;
+                        const hubsMap = {};
+
+                        rows.forEach((r, idx) => {
+                            if (!r.c || idx === 0) return; // Skip headers
+
+                            const hubName = r.c[0] ? (r.c[0].v || "").toString().trim() : "";
+                            const projectName = r.c[1] ? (r.c[1].v || "").toString().trim() : "";
+                            const emName = r.c[2] ? (r.c[2].v || "").toString().trim() : "N/A";
+                            const sfAccount = r.c[3] ? (r.c[3].v || "").toString().trim() : "N/A";
+                            const velocity = r.c[4] ? (r.c[4].f || r.c[4].v || "0%").toString() : "0%";
+                            const der = r.c[5] ? (r.c[5].f || r.c[5].v || "0%").toString() : "0%";
+                            const gates = r.c[6] ? (r.c[6].f || r.c[6].v || "0%").toString() : "0%";
+                            const security = r.c[7] ? (r.c[7].f || r.c[7].v || "N/A").toString() : "N/A";
+
+                            if (!hubName || !projectName) return;
+
+                            if (!hubsMap[hubName]) {
+                                hubsMap[hubName] = {
+                                    name: hubName,
+                                    engineers: hubEngineerDefaults[hubName] || 0,
+                                    projects_list: []
+                                };
+                            }
+
+                            hubsMap[hubName].projects_list.push({
+                                name: projectName,
+                                em: emName,
+                                sfAccount: sfAccount,
+                                velocity: velocity,
+                                der: der,
+                                gates: gates,
+                                security: security
+                            });
+                        });
+
+                        dynamicHubsData = Object.values(hubsMap).map(hub => ({
+                            ...hub,
+                            projects: hub.projects_list.length
+                        }));
+
+                        renderHubs();
+                        updateTotals();
+
+                    } catch (err) {
+                        console.error("Error parsing Quality Sheet GViz data:", err);
+                    }
+                }
+            };
+
+            const scriptElement = document.createElement('script');
+            scriptElement.src = GVIZ_QUALITY_URL;
+            document.body.appendChild(scriptElement);
+        }
+
+        function updateTotals() {
+            const totalEngineers = dynamicHubsData.reduce((acc, hub) => acc + (hub.engineers || 0), 0);
+            const totalProjects = dynamicHubsData.reduce((acc, hub) => acc + hub.projects, 0);
+
+            document.getElementById('totalEngineers').innerText = totalEngineers > 0 ? totalEngineers.toLocaleString() : "696";
+            document.getElementById('totalHubs').innerText = `Across ${dynamicHubsData.length} hubs`;
+            document.getElementById('totalProjects').innerText = totalProjects;
+        }
+
         function renderHubs() {
             const hubGrid = document.getElementById('hubGrid');
             hubGrid.innerHTML = '';
 
             let greenCount = 0, amberCount = 0, redCount = 0, totalCount = 0;
 
-            hubsData.forEach(hub => {
+            dynamicHubsData.forEach(hub => {
                 const hubCard = document.createElement('div');
                 hubCard.className = 'hub-card';
 
@@ -611,7 +416,7 @@
                 }));
 
                 projectsWithEEI.forEach(proj => hubEEISum += proj.eei.total);
-                const hubAvgEEI = Math.round(hubEEISum / projectsWithEEI.length);
+                const hubAvgEEI = projectsWithEEI.length > 0 ? Math.round(hubEEISum / projectsWithEEI.length) : 0;
                 const hubEEIStatus = getEEIStatus(hubAvgEEI);
 
                 const filteredProjects = currentFilter === 'all'
@@ -683,7 +488,6 @@
             document.getElementById('amberCount').textContent = amberCount;
             document.getElementById('redCount').textContent = redCount;
             document.getElementById('allCount').textContent = totalCount;
-            document.getElementById('totalProjects').textContent = totalCount;
         }
 
         function openProjectModal(event, projectName, emName, hubName, eeiScore, velocity, der, gates, security, sfAccount) {
@@ -732,10 +536,8 @@
             if (event.target === modal) closeModal();
         });
 
-        // Initialize dashboard UI directly
         document.addEventListener('DOMContentLoaded', () => {
-            renderHubs();
-            updateEngineerMetrics();
+            fetchQualitySheetData();
         });
     </script>
 </body>
