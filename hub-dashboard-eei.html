@@ -314,7 +314,7 @@
 
     <script>
         const SHEET_ID = '1LVaYLISkP4F_dCuN4vxASSMt7xB2YFNNCmFUawXYKNk';
-        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=1579032707`;
+        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
         let hubsData = [];
         let currentRAGFilter = 'all';
@@ -357,13 +357,18 @@
                         const cols = response.table.cols || [];
                         const rows = response.table.rows;
 
-                        // Dynamically locate the "Actively Tracking" column index
+                        // Find column indexes dynamically from headers
+                        let hubColIdx = 0;
+                        let projectColIdx = 1;
+                        let emColIdx = 2;
                         let trackingColIdx = -1;
+
                         cols.forEach((c, idx) => {
                             const label = (c.label || c.id || "").toString().trim().toLowerCase();
-                            if (label.includes("actively tracking") || label.includes("tracking") || label.includes("actively tracked")) {
-                                trackingColIdx = idx;
-                            }
+                            if (label.includes("hub") || label.includes("region")) hubColIdx = idx;
+                            if (label.includes("project") || label.includes("engagement")) projectColIdx = idx;
+                            if (label.includes("em") || label.includes("manager") || label.includes("lead")) emColIdx = idx;
+                            if (label.includes("tracking") || label.includes("actively")) trackingColIdx = idx;
                         });
 
                         const hubsMap = {};
@@ -371,36 +376,38 @@
                         rows.forEach((r) => {
                             if (!r.c) return;
 
-                            // Dynamic check for "Actively Tracking" == "Yes"
-                            let isTracked = false;
+                            const cellVal = (idx) => (r.c[idx] && r.c[idx].v !== null && r.c[idx].v !== undefined) ? r.c[idx].v.toString().trim() : "";
+                            const cellFormatted = (idx) => (r.c[idx] && r.c[idx].f) ? r.c[idx].f.toString().trim() : cellVal(idx);
 
-                            if (trackingColIdx !== -1 && r.c[trackingColIdx]) {
-                                const val = (r.c[trackingColIdx].v || "").toString().trim().toLowerCase();
-                                isTracked = (val === "yes");
+                            // Inspect row values for Actively Tracking == Yes
+                            let isTracked = false;
+                            if (trackingColIdx !== -1) {
+                                isTracked = cellVal(trackingColIdx).toLowerCase() === "yes";
                             } else {
-                                // Fallback scan across all cells in row for "yes" if header wasn't labeled
+                                // Scan all cells in the row for explicit "yes" entry
                                 isTracked = r.c.some(cell => cell && (cell.v || "").toString().trim().toLowerCase() === "yes");
                             }
 
-                            if (!isTracked) return; // Ignore row if Actively Tracking is not Yes
+                            if (!isTracked) return; // Skip non-actively tracked projects
 
-                            const hubName = r.c[0] ? (r.c[0].v || "").toString().trim() : "";
-                            const projectName = r.c[1] ? (r.c[1].v || "").toString().trim() : "";
-                            const emName = r.c[2] ? (r.c[2].v || "").toString().trim() : "N/A";
+                            const hubName = cellVal(hubColIdx);
+                            const projectName = cellVal(projectColIdx);
+                            const emName = cellVal(emColIdx) || "N/A";
 
-                            if (!hubName || !projectName) return;
+                            if (!hubName || !projectName || hubName.toLowerCase() === "hub") return;
 
-                            // Scan row cells to parse EEI score
+                            // Calculate / parse EEI Score
                             let eeiVal = 75;
                             for (let idx = 3; idx < r.c.length; idx++) {
-                                if (r.c[idx] && typeof r.c[idx].v === 'number' && r.c[idx].v > 10 && r.c[idx].v <= 100) {
-                                    eeiVal = Math.round(r.c[idx].v);
+                                const num = parseFloat(cellVal(idx));
+                                if (!isNaN(num) && num >= 10 && num <= 100) {
+                                    eeiVal = Math.round(num);
                                     break;
                                 }
                             }
 
-                            const derVal = r.c[4] ? (r.c[4].f || r.c[4].v || "0%").toString() : "0%";
-                            const gatesVal = r.c[6] ? (r.c[6].f || r.c[6].v || "0%").toString() : "0%";
+                            const derVal = cellFormatted(4) || "0%";
+                            const gatesVal = cellFormatted(6) || "0%";
 
                             if (!hubsMap[hubName]) {
                                 hubsMap[hubName] = {
@@ -411,14 +418,17 @@
                                 };
                             }
 
-                            hubsMap[hubName].projects_list.push({
-                                name: projectName,
-                                em: emName,
-                                eei: eeiVal,
-                                der: derVal,
-                                gates: gatesVal
-                            });
-                            hubsMap[hubName].projects = hubsMap[hubName].projects_list.length;
+                            // Avoid duplicate projects per hub
+                            if (!hubsMap[hubName].projects_list.some(p => p.name.toLowerCase() === projectName.toLowerCase())) {
+                                hubsMap[hubName].projects_list.push({
+                                    name: projectName,
+                                    em: emName,
+                                    eei: eeiVal,
+                                    der: derVal,
+                                    gates: gatesVal
+                                });
+                                hubsMap[hubName].projects = hubsMap[hubName].projects_list.length;
+                            }
                         });
 
                         const parsedHubs = Object.values(hubsMap);
@@ -452,8 +462,10 @@
                     { name: "GHIB", em: "Rainier Jordaan", eei: 50, der: "45%", gates: "45%" },
                     { name: "Jet Bank Albania", em: "Piotr Kaleta", eei: 54, der: "31%", gates: "55%" }
                 ]},
-                { name: "Africa", engineers: 51, projects: 2, projects_list: [
+                { name: "Africa", engineers: 51, projects: 4, projects_list: [
                     { name: "CIH - Origination", em: "Sudhakar Krovi", eei: 85, der: "6%", gates: "89%" },
+                    { name: "CIH - Retail", em: "Sudhakar Krovi", eei: 82, der: "8%", gates: "85%" },
+                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", eei: 80, der: "10%", gates: "82%" },
                     { name: "SBN", em: "Rainier Jordaan", eei: 78, der: "0%", gates: "79%" }
                 ]},
                 { name: "North America", engineers: 165, projects: 10, projects_list: [
