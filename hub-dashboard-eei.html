@@ -363,9 +363,16 @@
         }
 
         function extractDirectSheetValue(cellObj) {
-            if (!cellObj || cellObj.v === null || cellObj.v === undefined) return "0";
+            if (!cellObj || cellObj.v === null || cellObj.v === undefined) return "0%";
             if (cellObj.f) return cellObj.f.toString().trim();
-            return cellObj.v.toString().trim();
+            let val = cellObj.v.toString().trim();
+            if (!isNaN(parseFloat(val)) && parseFloat(val) > 0 && parseFloat(val) < 1) {
+                return (parseFloat(val) * 100).toFixed(1).replace('.0', '') + "%";
+            }
+            if (!isNaN(parseFloat(val)) && !val.includes("%")) {
+                return val + "%";
+            }
+            return val;
         }
 
         function fetchLiveSheetData() {
@@ -482,11 +489,11 @@
             hubsData = [
                 { name: "Africa", engineers: 51, securityScore: 96, projects_list: [
                     { name: "CIH - Origination", em: "Sudhakar Krovi", score: 88, der: "6%" },
-                    { name: "CIH - Retail", em: "Sudhakar Krovi", score: 85, der: "0" },
-                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", score: 84, der: "0" }
+                    { name: "CIH - Retail", em: "Sudhakar Krovi", score: 85, der: "0%" },
+                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", score: 84, der: "0%" }
                 ]},
                 { name: "ANZ", engineers: 27, securityScore: 85, projects_list: [
-                    { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0" },
+                    { name: "MyState MSE", em: "Amar Koondla", score: 75, der: "0%" },
                     { name: "MyState DO", em: "Amar Koondla", score: 83, der: "17%" }
                 ]},
                 { name: "North America", engineers: 183, securityScore: 74, projects_list: [
@@ -495,24 +502,24 @@
                     { name: "NBC Mobile", em: "Tomasz Jakubas", score: 88, der: "9%" },
                     { name: "BECU", em: "Rodrigo Monroy", score: 92, der: "15%" },
                     { name: "BECU CC", em: "Rodrigo Monroy", score: 90, der: "15%" },
-                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "0" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", score: 91, der: "5%" },
                     { name: "Eastern Business", em: "Arshad Khan", score: 89, der: "4%" },
                     { name: "Eastern Retail", em: "Arshad Khan", score: 87, der: "6%" },
                     { name: "TD Bank", em: "Veena Manasa Panuganti", score: 93, der: "8%" },
-                    { name: "WSECU", em: "Kireet Kovvali", score: 91, der: "0" }
+                    { name: "WSECU", em: "Kireet Kovvali", score: 91, der: "0%" }
                 ]},
                 { name: "Middle East", engineers: 109, securityScore: 88, projects_list: [
-                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", score: 80, der: "0" },
+                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", score: 80, der: "0%" },
                     { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", score: 95, der: "3%" },
-                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", score: 86, der: "0" }
+                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", score: 86, der: "0%" }
                 ]},
                 { name: "Asia", engineers: 220, securityScore: 80, projects_list: [
                     { name: "HDFC", em: "Kiran Kumar Gudimalla", score: 82, der: "8%" },
                     { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", score: 90, der: "3%" },
                     { name: "BDO Online", em: "Malay Jain", score: 85, der: "15%" },
-                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", score: 80, der: "0" },
-                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", score: 78, der: "0" },
-                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0" }
+                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", score: 80, der: "0%" },
+                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", score: 78, der: "0%" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", score: 88, der: "0%" }
                 ]},
                 { name: "Europe", engineers: 60, securityScore: 82, projects_list: [
                     { name: "Arbuthnot Latham", em: "Adam Kopycinski", score: 78, der: "18%" },
