@@ -357,18 +357,18 @@
                         const cols = response.table.cols || [];
                         const rows = response.table.rows;
 
-                        // Find column indexes dynamically from headers
-                        let hubColIdx = 0;
-                        let projectColIdx = 1;
-                        let emColIdx = 2;
-                        let trackingColIdx = -1;
+                        // Dynamic header lookup
+                        let hubIdx = -1, projIdx = -1, emIdx = -1, activeIdx = -1, derIdx = -1, gatesIdx = -1, eeiIdx = -1;
 
                         cols.forEach((c, idx) => {
-                            const label = (c.label || c.id || "").toString().trim().toLowerCase();
-                            if (label.includes("hub") || label.includes("region")) hubColIdx = idx;
-                            if (label.includes("project") || label.includes("engagement")) projectColIdx = idx;
-                            if (label.includes("em") || label.includes("manager") || label.includes("lead")) emColIdx = idx;
-                            if (label.includes("tracking") || label.includes("actively")) trackingColIdx = idx;
+                            const lbl = (c.label || c.id || "").toString().trim().toLowerCase();
+                            if (lbl.includes("hub") || lbl.includes("region")) hubIdx = idx;
+                            if (lbl.includes("project") || lbl.includes("engagement") || lbl.includes("account")) projIdx = idx;
+                            if (lbl.includes("manager") || lbl.includes("em") || lbl.includes("lead")) emIdx = idx;
+                            if (lbl.includes("tracking") || lbl.includes("actively")) activeIdx = idx;
+                            if (lbl.includes("der") || lbl.includes("defect")) derIdx = idx;
+                            if (lbl.includes("gate")) gatesIdx = idx;
+                            if (lbl.includes("eei") || lbl.includes("index") || lbl.includes("score")) eeiIdx = idx;
                         });
 
                         const hubsMap = {};
@@ -376,49 +376,50 @@
                         rows.forEach((r) => {
                             if (!r.c) return;
 
-                            const cellVal = (idx) => (r.c[idx] && r.c[idx].v !== null && r.c[idx].v !== undefined) ? r.c[idx].v.toString().trim() : "";
-                            const cellFormatted = (idx) => (r.c[idx] && r.c[idx].f) ? r.c[idx].f.toString().trim() : cellVal(idx);
+                            const getVal = (i) => (i >= 0 && r.c[i] && r.c[i].v !== null && r.c[i].v !== undefined) ? r.c[i].v.toString().trim() : "";
+                            const getFmt = (i) => (i >= 0 && r.c[i] && r.c[i].f) ? r.c[i].f.toString().trim() : getVal(i);
 
-                            // Inspect row values for Actively Tracking == Yes
+                            // Verify "Actively Tracking" == "Yes"
                             let isTracked = false;
-                            if (trackingColIdx !== -1) {
-                                isTracked = cellVal(trackingColIdx).toLowerCase() === "yes";
+                            if (activeIdx !== -1) {
+                                isTracked = getVal(activeIdx).toLowerCase() === "yes";
                             } else {
-                                // Scan all cells in the row for explicit "yes" entry
                                 isTracked = r.c.some(cell => cell && (cell.v || "").toString().trim().toLowerCase() === "yes");
                             }
 
-                            if (!isTracked) return; // Skip non-actively tracked projects
+                            if (!isTracked) return;
 
-                            const hubName = cellVal(hubColIdx);
-                            const projectName = cellVal(projectColIdx);
-                            const emName = cellVal(emColIdx) || "N/A";
+                            const hubName = getVal(hubIdx !== -1 ? hubIdx : 0);
+                            const projectName = getVal(projIdx !== -1 ? projIdx : 1);
+                            const emName = getVal(emIdx !== -1 ? emIdx : 2) || "N/A";
 
                             if (!hubName || !projectName || hubName.toLowerCase() === "hub") return;
 
-                            // Calculate / parse EEI Score
+                            // Dynamic EEI parsing
                             let eeiVal = 75;
-                            for (let idx = 3; idx < r.c.length; idx++) {
-                                const num = parseFloat(cellVal(idx));
-                                if (!isNaN(num) && num >= 10 && num <= 100) {
-                                    eeiVal = Math.round(num);
-                                    break;
+                            if (eeiIdx !== -1 && !isNaN(parseFloat(getVal(eeiIdx)))) {
+                                eeiVal = Math.round(parseFloat(getVal(eeiIdx)));
+                            } else {
+                                for (let i = 3; i < r.c.length; i++) {
+                                    const num = parseFloat(getVal(i));
+                                    if (!isNaN(num) && num >= 10 && num <= 100) {
+                                        eeiVal = Math.round(num);
+                                        break;
+                                    }
                                 }
                             }
 
-                            const derVal = cellFormatted(4) || "0%";
-                            const gatesVal = cellFormatted(6) || "0%";
+                            const derVal = getFmt(derIdx !== -1 ? derIdx : 4) || "0%";
+                            const gatesVal = getFmt(gatesIdx !== -1 ? gatesIdx : 6) || "0%";
 
                             if (!hubsMap[hubName]) {
                                 hubsMap[hubName] = {
                                     name: hubName,
                                     engineers: hubEngDefaults[hubName] || 50,
-                                    projects: 0,
                                     projects_list: []
                                 };
                             }
 
-                            // Avoid duplicate projects per hub
                             if (!hubsMap[hubName].projects_list.some(p => p.name.toLowerCase() === projectName.toLowerCase())) {
                                 hubsMap[hubName].projects_list.push({
                                     name: projectName,
@@ -427,7 +428,6 @@
                                     der: derVal,
                                     gates: gatesVal
                                 });
-                                hubsMap[hubName].projects = hubsMap[hubName].projects_list.length;
                             }
                         });
 
@@ -456,39 +456,51 @@
 
         function fallbackData() {
             hubsData = [
-                { name: "Europe", engineers: 60, projects: 4, projects_list: [
-                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", eei: 74, der: "18%", gates: "62.5%" },
-                    { name: "Weatherbys", em: "Piotr Mądry", eei: 74, der: "19%", gates: "75%" },
-                    { name: "GHIB", em: "Rainier Jordaan", eei: 50, der: "45%", gates: "45%" },
-                    { name: "Jet Bank Albania", em: "Piotr Kaleta", eei: 54, der: "31%", gates: "55%" }
-                ]},
-                { name: "Africa", engineers: 51, projects: 4, projects_list: [
-                    { name: "CIH - Origination", em: "Sudhakar Krovi", eei: 85, der: "6%", gates: "89%" },
-                    { name: "CIH - Retail", em: "Sudhakar Krovi", eei: 82, der: "8%", gates: "85%" },
-                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", eei: 80, der: "10%", gates: "82%" },
-                    { name: "SBN", em: "Rainier Jordaan", eei: 78, der: "0%", gates: "79%" }
-                ]},
-                { name: "North America", engineers: 165, projects: 10, projects_list: [
-                    { name: "EverBank Commercial", em: "Srinivas Turlapati", eei: 82, der: "12%", gates: "77%" },
-                    { name: "EverBank Business Onboarding", em: "Srinivas Turlapati", eei: 81, der: "11%", gates: "85%" },
+                { name: "North America", engineers: 165, projects_list: [
+                    { name: "EverBank Commercial", em: "Srinivas Kartheek Turlapati", eei: 82, der: "12%", gates: "77%" },
+                    { name: "EverBank Business Onboarding", em: "Srinivas Kartheek Turlapati", eei: 81, der: "11%", gates: "85%" },
+                    { name: "NBC Mobile", em: "Tomasz Jakubas", eei: 88, der: "9%", gates: "70%" },
                     { name: "BECU", em: "Rodrigo Monroy", eei: 90, der: "0%", gates: "89%" },
-                    { name: "TD Bank", em: "Veena Panuganti", eei: 92, der: "0%", gates: "89%" }
+                    { name: "BECU CC", em: "Rodrigo Monroy", eei: 90, der: "0%", gates: "89%" },
+                    { name: "Alliant Retail", em: "Sateesh Dommeti", eei: 91, der: "0%", gates: "89%" },
+                    { name: "Eastern Business", em: "Arshad Khan", eei: 89, der: "0%", gates: "89%" },
+                    { name: "Eastern Retail", em: "Arshad Khan", eei: 87, der: "0%", gates: "89%" },
+                    { name: "TD Bank", em: "Veena Manasa Panuganti", eei: 93, der: "0%", gates: "89%" },
+                    { name: "WSECU", em: "Kireet Kovvali", eei: 91, der: "0%", gates: "89%" }
                 ]},
-                { name: "Middle East", engineers: 109, projects: 3, projects_list: [
+                { name: "Middle East", engineers: 109, projects_list: [
                     { name: "Banque Saudi Fransi", em: "Vinay Uddandam", eei: 80, der: "0%", gates: "65%" },
-                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma", eei: 94, der: "3%", gates: "100%" }
+                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma V", eei: 95, der: "3%", gates: "100%" },
+                    { name: "Bank Muscat", em: "Damodar Seepana Veepin Kumar", eei: 86, der: "0%", gates: "79%" }
                 ]},
-                { name: "LATAM", engineers: 64, projects: 3, projects_list: [
-                    { name: "Bineo", em: "José Velázquez", eei: 83, der: "20%", gates: "100%" },
-                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", eei: 80, der: "10%", gates: "86%" }
+                { name: "Asia", engineers: 220, projects_list: [
+                    { name: "HDFC", em: "Kiran Kumar Gudimalla", eei: 82, der: "8%", gates: "65%" },
+                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", eei: 90, der: "3%", gates: "88%" },
+                    { name: "BDO Online", em: "Malay Jain", eei: 85, der: "15%", gates: "77%" },
+                    { name: "East West Bank Retail", em: "Koondla Amaranarayanachowdary", eei: 80, der: "0%", gates: "75%" },
+                    { name: "East West Bank Business", em: "Koondla Amaranarayanachowdary", eei: 78, der: "0%", gates: "75%" },
+                    { name: "China Bank of Philippines", em: "Divya Appidi", eei: 88, der: "0%", gates: "85%" }
                 ]},
-                { name: "Asia", engineers: 220, projects: 6, projects_list: [
-                    { name: "HDFC", em: "Kiran Gudimalla", eei: 79, der: "8%", gates: "65%" },
-                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", eei: 89, der: "3%", gates: "88%" }
+                { name: "Europe", engineers: 60, projects_list: [
+                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", eei: 78, der: "18%", gates: "62.5%" },
+                    { name: "Weatherbys", em: "Piotr Mądry", eei: 82, der: "19%", gates: "75%" },
+                    { name: "GHIB", em: "Rainier Jordaan", eei: 65, der: "45%", gates: "45%" },
+                    { name: "Jet Bank Albania", em: "Piotr Kaleta", eei: 72, der: "31%", gates: "55%" }
                 ]},
-                { name: "ANZ", engineers: 27, projects: 2, projects_list: [
-                    { name: "MyState MSE", em: "Krishna Vishnubhotla", eei: 72, der: "0%", gates: "68%" },
-                    { name: "MyState DO", em: "Krishna Vishnubhotla", eei: 84, der: "17%", gates: "86%" }
+                { name: "Africa", engineers: 51, projects_list: [
+                    { name: "CIH - Origination", em: "Sudhakar Krovi", eei: 88, der: "6%", gates: "89%" },
+                    { name: "CIH - Retail", em: "Sudhakar Krovi", eei: 85, der: "5%", gates: "87%" },
+                    { name: "CIH-Onboarding", em: "Sudhakar Krovi", eei: 84, der: "6%", gates: "85%" },
+                    { name: "SBN", em: "Rainier Jordaan", eei: 85, der: "0%", gates: "79%" }
+                ]},
+                { name: "LATAM", engineers: 64, projects_list: [
+                    { name: "Bineo", em: "José Luis Velázquez Lara", eei: 84, der: "20%", gates: "100%" },
+                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", eei: 81, der: "10%", gates: "86%" },
+                    { name: "BNCR - Retail (Build)", em: "Gustavo Hasegawa", eei: 55, der: "33%", gates: "33%" }
+                ]},
+                { name: "ANZ", engineers: 27, projects_list: [
+                    { name: "MyState MSE", em: "Krishna Kanth Vishnubhotla", eei: 75, der: "0%", gates: "68%" },
+                    { name: "MyState DO", em: "Krishna Kanth Vishnubhotla", eei: 83, der: "17%", gates: "86%" }
                 ]}
             ];
             updateTotals();
