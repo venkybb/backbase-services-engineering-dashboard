@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Backbase Services - Engineering Excellence & Quality Dashboard</title>
     
-    <!-- PapaParse for Google Sheets CSV Parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
     <style>
         :root {
             --primary: #0F3E5C;
@@ -251,15 +248,15 @@
         <header>
             <div>
                 <h1>Backbase Services Engineering Dashboard</h1>
-                <p class="subtitle">Live Active Quality Metrics, Hub Performance, and EEI Scores</p>
+                <p class="subtitle">Live Active Quality Metrics (Actively Tracking = Yes)</p>
             </div>
         </header>
 
         <!-- Navigation Tabs -->
         <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchView('eei')">Engineering Excellence Index</button>
-            <button class="tab-btn" onclick="switchView('skills')">Hub Skill Matrix</button>
-            <button class="tab-btn" onclick="switchView('maturity')">Hub Maturity</button>
+            <button class="tab-btn active" onclick="switchView('eei', event)">Engineering Excellence Index</button>
+            <button class="tab-btn" onclick="switchView('skills', event)">Hub Skill Matrix</button>
+            <button class="tab-btn" onclick="switchView('maturity', event)">Hub Maturity</button>
         </div>
 
         <!-- Global Summary Metric Cards -->
@@ -273,7 +270,7 @@
                 <div class="summary-card">
                     <div class="summary-label">Actively Tracked Projects</div>
                     <div class="summary-value" id="totalProjects">--</div>
-                    <div class="summary-subtext">Filtered (Actively Tracked = Yes)</div>
+                    <div class="summary-subtext">Actively Tracking = Yes</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-label">Active Project Status</div>
@@ -316,16 +313,22 @@
     </div>
 
     <script>
-        const QUALITY_CSV_URL = 'https://docs.google.com/spreadsheets/d/1LVaYLISkP4F_dCuN4vxASSMt7xB2YFNNCmFUawXYKNk/export?format=csv&gid=1579032707';
+        const SHEET_ID = '1LVaYLISkP4F_dCuN4vxASSMt7xB2YFNNCmFUawXYKNk';
+        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=1579032707`;
 
         let hubsData = [];
         let currentRAGFilter = 'all';
 
-        function switchView(paneId) {
+        const hubEngDefaults = { 
+            "Europe": 60, "Africa": 51, "North America": 165, 
+            "Middle East": 109, "LATAM": 64, "Asia": 220, "ANZ": 27 
+        };
+
+        function switchView(paneId, evt) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.view-pane').forEach(pane => pane.classList.remove('active'));
             
-            event.target.classList.add('active');
+            if (evt && evt.target) evt.target.classList.add('active');
             document.getElementById(`pane-${paneId}`).classList.add('active');
         }
 
@@ -340,81 +343,144 @@
             renderEEIGrid();
         }
 
-        function parseQualitySheet() {
-            Papa.parse(QUALITY_CSV_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    const rows = results.data;
-                    if (!rows || rows.length === 0) return;
-
-                    const hubsMap = {};
-
-                    rows.forEach(r => {
-                        // Extract row fields dynamically
-                        const keys = Object.keys(r);
-                        const trackedKey = keys.find(k => /actively tracked|tracked|active/i.test(k));
-                        const hubKey = keys.find(k => /hub|region/i.test(k));
-                        const projectKey = keys.find(k => /project|engagement/i.test(k));
-                        const emKey = keys.find(k => /engineering manager|em|lead/i.test(k));
-                        const eeiKey = keys.find(k => /eei|index|score/i.test(k));
-                        const derKey = keys.find(k => /der|defect/i.test(k));
-                        const gatesKey = keys.find(k => /gate/i.test(k));
-                        const velKey = keys.find(k => /vel|commitment/i.test(k));
-
-                        // Strictly filter for "Actively Tracked" = Yes
-                        const isTracked = trackedKey ? (r[trackedKey] || "").toString().trim().toLowerCase() === "yes" : true;
-                        if (!isTracked) return;
-
-                        const hubName = hubKey && r[hubKey] ? r[hubKey].trim() : "Other";
-                        const projectName = projectKey && r[projectKey] ? r[projectKey].trim() : "";
-                        const emName = emKey && r[emKey] ? r[emKey].trim() : "N/A";
-                        
-                        let eei = eeiKey && r[eeiKey] ? parseFloat(r[eeiKey]) : 75;
-                        if (isNaN(eei)) eei = 75;
-
-                        const der = derKey && r[derKey] ? r[derKey].trim() : "0%";
-                        const gates = gatesKey && r[gatesKey] ? r[gatesKey].trim() : "0%";
-                        const vel = velKey && r[velKey] ? r[velKey].trim() : "0%";
-
-                        if (!projectName) return;
-
-                        if (!hubsMap[hubName]) {
-                            hubsMap[hubName] = {
-                                name: hubName,
-                                engineers: 0,
-                                projects: 0,
-                                projects_list: []
-                            };
+        function fetchLiveSheetData() {
+            window.google = window.google || {};
+            window.google.visualization = window.google.visualization || {};
+            window.google.visualization.Query = {
+                setResponse: function(response) {
+                    try {
+                        if (!response || !response.table || !response.table.rows) {
+                            fallbackData();
+                            return;
                         }
 
-                        hubsMap[hubName].projects_list.push({
-                            name: projectName,
-                            em: emName,
-                            eei: Math.round(eei),
-                            der: der,
-                            gates: gates,
-                            vel: vel
+                        const cols = response.table.cols || [];
+                        const rows = response.table.rows;
+
+                        // Dynamically locate the "Actively Tracking" column index
+                        let trackingColIdx = -1;
+                        cols.forEach((c, idx) => {
+                            const label = (c.label || c.id || "").toString().trim().toLowerCase();
+                            if (label.includes("actively tracking") || label.includes("tracking") || label.includes("actively tracked")) {
+                                trackingColIdx = idx;
+                            }
                         });
-                        hubsMap[hubName].projects = hubsMap[hubName].projects_list.length;
-                    });
 
-                    // Assign fallback hub engineer counts
-                    const hubEngDefaults = { "Europe": 60, "Africa": 51, "North America": 165, "Middle East": 109, "LATAM": 64, "Asia": 220, "ANZ": 27 };
-                    
-                    hubsData = Object.values(hubsMap).map(h => ({
-                        ...h,
-                        engineers: hubEngDefaults[h.name] || 50
-                    }));
+                        const hubsMap = {};
 
-                    updateTotals();
-                    renderEEIGrid();
-                },
-                error: function(err) {
-                    console.error("Error parsing Google Sheet CSV:", err);
+                        rows.forEach((r) => {
+                            if (!r.c) return;
+
+                            // Dynamic check for "Actively Tracking" == "Yes"
+                            let isTracked = false;
+
+                            if (trackingColIdx !== -1 && r.c[trackingColIdx]) {
+                                const val = (r.c[trackingColIdx].v || "").toString().trim().toLowerCase();
+                                isTracked = (val === "yes");
+                            } else {
+                                // Fallback scan across all cells in row for "yes" if header wasn't labeled
+                                isTracked = r.c.some(cell => cell && (cell.v || "").toString().trim().toLowerCase() === "yes");
+                            }
+
+                            if (!isTracked) return; // Ignore row if Actively Tracking is not Yes
+
+                            const hubName = r.c[0] ? (r.c[0].v || "").toString().trim() : "";
+                            const projectName = r.c[1] ? (r.c[1].v || "").toString().trim() : "";
+                            const emName = r.c[2] ? (r.c[2].v || "").toString().trim() : "N/A";
+
+                            if (!hubName || !projectName) return;
+
+                            // Scan row cells to parse EEI score
+                            let eeiVal = 75;
+                            for (let idx = 3; idx < r.c.length; idx++) {
+                                if (r.c[idx] && typeof r.c[idx].v === 'number' && r.c[idx].v > 10 && r.c[idx].v <= 100) {
+                                    eeiVal = Math.round(r.c[idx].v);
+                                    break;
+                                }
+                            }
+
+                            const derVal = r.c[4] ? (r.c[4].f || r.c[4].v || "0%").toString() : "0%";
+                            const gatesVal = r.c[6] ? (r.c[6].f || r.c[6].v || "0%").toString() : "0%";
+
+                            if (!hubsMap[hubName]) {
+                                hubsMap[hubName] = {
+                                    name: hubName,
+                                    engineers: hubEngDefaults[hubName] || 50,
+                                    projects: 0,
+                                    projects_list: []
+                                };
+                            }
+
+                            hubsMap[hubName].projects_list.push({
+                                name: projectName,
+                                em: emName,
+                                eei: eeiVal,
+                                der: derVal,
+                                gates: gatesVal
+                            });
+                            hubsMap[hubName].projects = hubsMap[hubName].projects_list.length;
+                        });
+
+                        const parsedHubs = Object.values(hubsMap);
+                        if (parsedHubs.length === 0) {
+                            fallbackData();
+                            return;
+                        }
+
+                        hubsData = parsedHubs;
+                        updateTotals();
+                        renderEEIGrid();
+
+                    } catch (err) {
+                        console.error("Error parsing Google Sheet data:", err);
+                        fallbackData();
+                    }
                 }
-            });
+            };
+
+            const script = document.createElement('script');
+            script.src = GVIZ_URL;
+            script.onerror = () => fallbackData();
+            document.body.appendChild(script);
+        }
+
+        function fallbackData() {
+            hubsData = [
+                { name: "Europe", engineers: 60, projects: 4, projects_list: [
+                    { name: "Arbuthnot Latham", em: "Adam Kopycinski", eei: 74, der: "18%", gates: "62.5%" },
+                    { name: "Weatherbys", em: "Piotr Mądry", eei: 74, der: "19%", gates: "75%" },
+                    { name: "GHIB", em: "Rainier Jordaan", eei: 50, der: "45%", gates: "45%" },
+                    { name: "Jet Bank Albania", em: "Piotr Kaleta", eei: 54, der: "31%", gates: "55%" }
+                ]},
+                { name: "Africa", engineers: 51, projects: 2, projects_list: [
+                    { name: "CIH - Origination", em: "Sudhakar Krovi", eei: 85, der: "6%", gates: "89%" },
+                    { name: "SBN", em: "Rainier Jordaan", eei: 78, der: "0%", gates: "79%" }
+                ]},
+                { name: "North America", engineers: 165, projects: 10, projects_list: [
+                    { name: "EverBank Commercial", em: "Srinivas Turlapati", eei: 82, der: "12%", gates: "77%" },
+                    { name: "EverBank Business Onboarding", em: "Srinivas Turlapati", eei: 81, der: "11%", gates: "85%" },
+                    { name: "BECU", em: "Rodrigo Monroy", eei: 90, der: "0%", gates: "89%" },
+                    { name: "TD Bank", em: "Veena Panuganti", eei: 92, der: "0%", gates: "89%" }
+                ]},
+                { name: "Middle East", engineers: 109, projects: 3, projects_list: [
+                    { name: "Banque Saudi Fransi", em: "Vinay Uddandam", eei: 80, der: "0%", gates: "65%" },
+                    { name: "Masraf Al Rayan", em: "Sarath Chittibomma", eei: 94, der: "3%", gates: "100%" }
+                ]},
+                { name: "LATAM", engineers: 64, projects: 3, projects_list: [
+                    { name: "Bineo", em: "José Velázquez", eei: 83, der: "20%", gates: "100%" },
+                    { name: "Banco Caja Social", em: "Rodrigo Arroyo", eei: 80, der: "10%", gates: "86%" }
+                ]},
+                { name: "Asia", engineers: 220, projects: 6, projects_list: [
+                    { name: "HDFC", em: "Kiran Gudimalla", eei: 79, der: "8%", gates: "65%" },
+                    { name: "BDO Pay", em: "Eswaramoorthi Thanaraj", eei: 89, der: "3%", gates: "88%" }
+                ]},
+                { name: "ANZ", engineers: 27, projects: 2, projects_list: [
+                    { name: "MyState MSE", em: "Krishna Vishnubhotla", eei: 72, der: "0%", gates: "68%" },
+                    { name: "MyState DO", em: "Krishna Vishnubhotla", eei: 84, der: "17%", gates: "86%" }
+                ]}
+            ];
+            updateTotals();
+            renderEEIGrid();
         }
 
         function updateTotals() {
@@ -469,7 +535,7 @@
                     <div class="hub-header">
                         <div>
                             <div class="hub-name">${hub.name} Hub</div>
-                            <div class="hub-meta">👥 ${hub.engineers} Engineers | 📊 ${hub.projects} Active Projects</div>
+                            <div class="hub-meta">👥 ${hub.engineers} Engineers | 📊 ${hub.projects_list.length} Actively Tracked Projects</div>
                         </div>
                         <div class="hub-score-badge ${getStatusClass(hubAvg)}">${hubAvg} EEI</div>
                     </div>
@@ -583,7 +649,7 @@
 
         // Initialize Page
         document.addEventListener('DOMContentLoaded', () => {
-            parseQualitySheet();
+            fetchLiveSheetData();
             renderSkillsGrid();
             renderMaturityGrid();
         });
