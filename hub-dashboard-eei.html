@@ -1,77 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <!-- Include PapaParse in your <head> -->
-<script src="[https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js](https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js)"></script>
-
-<script>
-  // Replace these with your published CSV links from Google Sheets
-  const SHEET_URLS = {
-    eei: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLgLHary7wHkV2-ySU5fPnB5omcXF6gQ8EPzRISWLnYluaLRNC0-e8QWQc4Fy0pxLWf3FK6soIupJe/pubhtml',
-    maturity: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_4N9lDe5plEe1INHgxL2OFZnX7Q1iIoFJ88dNFWu2UTEqX_42rx-fWWQfwW2PYVwbWi_8q7sU2pqr/pub?output=csv',
-    skills: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs/pub?output=csv'
-  };
-
-  // State cache to avoid re-fetching clicked tabs
-  const cache = {};
-
-  async function loadSheetData(sheetType) {
-    // Show a quick loading state on your dashboard cards/table
-    showLoadingSpinner();
-
-    // Return cached data if already fetched
-    if (cache[sheetType]) {
-      renderDashboard(sheetType, cache[sheetType]);
-      return;
-    }
-
-    try {
-      const response = await fetch(SHEET_URLS[sheetType]);
-      const csvText = await response.text();
-
-      // Parse CSV into structured JS objects
-      const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-      
-      // Store in cache
-      cache[sheetType] = parsed.data;
-
-      // Render tab-specific view
-      renderDashboard(sheetType, cache[sheetType]);
-    } catch (error) {
-      console.error(`Failed to load ${sheetType} data:`, error);
-      showErrorMessage("Failed to load live metrics. Please check Google Sheet publishing settings.");
-    }
-  }
-
-  function renderDashboard(type, data) {
-    console.log(`Rendering view [${type}]:`, data);
-
-    if (type === 'eei') {
-      // Render Engineering Excellence Index cards & tables
-      renderEEIView(data);
-    } else if (type === 'maturity') {
-      // Render Hub Maturity scores & radar/bar charts
-      renderMaturityView(data);
-    } else if (type === 'skills') {
-      // Render Hub Skill Matrix grid/table
-      renderSkillMatrixView(data);
-    }
-  }
-
-  // Set up event listeners for navigation buttons
-  document.addEventListener('DOMContentLoaded', () => {
-    // Default load: EEI Quality Metrics
-    loadSheetData('eei');
-
-    // Bind button click handlers
-    document.getElementById('btn-eei')?.addEventListener('click', () => loadSheetData('eei'));
-    document.getElementById('btn-maturity')?.addEventListener('click', () => loadSheetData('maturity'));
-    document.getElementById('btn-skills')?.addEventListener('click', () => loadSheetData('skills'));
-  });
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Quality Dashboard - Engineering Excellence Index Scores</title>
+    
+    <!-- Include PapaParse for Google Sheets CSV parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
     <style>
         :root {
             color-scheme: light;
@@ -190,36 +126,6 @@
             font-size: 12px;
             margin-top: 4px;
             color: var(--text-light);
-        }
-
-        .eei-score-card {
-            background: linear-gradient(135deg, #ECF0F1 0%, #FFFFFF 100%);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-            margin-right: 12px;
-        }
-
-        .eei-score-card strong {
-            font-size: 32px;
-            display: block;
-            margin: 8px 0;
-        }
-
-        .eei-score-card.green-score {
-            border-color: var(--green);
-            background: #d4edda;
-        }
-
-        .eei-score-card.amber-score {
-            border-color: var(--amber);
-            background: #fff3cd;
-        }
-
-        .eei-score-card.red-score {
-            border-color: var(--red);
-            background: #f8d7da;
         }
 
         .hub-section {
@@ -392,27 +298,6 @@
             background: var(--secondary);
         }
 
-        .legend {
-            display: flex;
-            gap: 24px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            font-size: 13px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -482,17 +367,6 @@
             border-bottom: none;
         }
 
-        .modal-row span:first-child {
-            font-weight: 500;
-        }
-
-        .metric-breakdown {
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-
         .metric-row {
             display: flex;
             justify-content: space-between;
@@ -516,18 +390,6 @@
             font-size: 11px;
             min-width: 60px;
             text-align: right;
-        }
-
-        .total-eei {
-            background: var(--primary);
-            color: white;
-            padding: 12px;
-            border-radius: 4px;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-weight: 700;
-            font-size: 14px;
         }
 
         .hub-eei-summary {
@@ -579,20 +441,18 @@
                 </div>
             </div>
 
-         <div class="summary-grid">
-    <div class="summary-card">
-        <div class="summary-label">Total Engineers</div>
-        <!-- Added id="totalEngineers" -->
-        <div class="summary-value" id="totalEngineers">--</div> 
-        <!-- Added id="totalHubs" -->
-        <div class="summary-change" id="totalHubs">Across -- hubs</div>
-    </div>
-    <div class="summary-card">
-        <div class="summary-label">Total Projects Tracked</div>
-        <div class="summary-value" id="totalProjects">30</div>
-        <div class="summary-change">With Index metrics</div>
-    </div>
-</div>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Total Engineers</div>
+                    <div class="summary-value" id="totalEngineers">--</div> 
+                    <div class="summary-change" id="totalHubs">Across -- hubs</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Total Projects Tracked</div>
+                    <div class="summary-value" id="totalProjects">30</div>
+                    <div class="summary-change">With Index metrics</div>
+                </div>
+            </div>
         </div>
 
         <div class="hub-section">
@@ -601,6 +461,7 @@
         </div>
     </div>
 
+    <!-- Modal for Project Details -->
     <div class="modal" id="projectModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">×</button>
@@ -610,6 +471,10 @@
     </div>
 
     <script>
+        // 1. Corrected Skill Matrix Google Sheet published CSV URL
+        const SKILL_MATRIX_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs/pub?output=csv';
+
+        // Static fallback data for Hub projects
         const hubsData = [
             {
                 name: "Europe",
@@ -694,34 +559,88 @@
 
         let currentFilter = 'all';
 
-        // Scoring functions
-        function scoreVelocity(velocityPercent) {
-            const val = parseFloat(velocityPercent);
+        // Function to fetch and update Engineer metrics from Skill Matrix Google Sheet
+        async function updateEngineerMetrics() {
+            try {
+                const response = await fetch(SKILL_MATRIX_CSV_URL);
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
+                const csvText = await response.text();
+
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const rows = results.data;
+                        if (!rows || rows.length === 0) return;
+
+                        // Detect headers dynamically
+                        const sampleRow = rows[0];
+                        const keys = Object.keys(sampleRow);
+                        const nameKey = keys.find(k => /name|engineer|employee|member/i.test(k));
+                        const hubKey = keys.find(k => /hub|profit centre|region|location/i.test(k));
+
+                        // Filter valid engineer entries
+                        const validEngineers = rows.filter(row => {
+                            if (nameKey) return row[nameKey] && row[nameKey].trim() !== '';
+                            return Object.values(row).some(val => val && val.trim() !== '');
+                        });
+
+                        const totalEngineers = validEngineers.length;
+
+                        // Calculate unique hubs
+                        let uniqueHubsCount = 0;
+                        if (hubKey) {
+                            const uniqueHubs = new Set(
+                                validEngineers
+                                    .map(e => e[hubKey] ? e[hubKey].trim() : '')
+                                    .filter(Boolean)
+                            );
+                            uniqueHubsCount = uniqueHubs.size;
+                        }
+
+                        // Update DOM Elements
+                        const totalElem = document.getElementById('totalEngineers');
+                        const hubsElem = document.getElementById('totalHubs');
+
+                        if (totalElem) totalElem.innerText = totalEngineers.toLocaleString();
+                        if (hubsElem) hubsElem.innerText = uniqueHubsCount > 0 ? `Across ${uniqueHubsCount} hubs` : 'Across hubs';
+                    }
+                });
+
+            } catch (error) {
+                console.error('Failed to load Skill Matrix metrics:', error);
+            }
+        }
+
+        // EEI Calculation functions
+        function scoreVelocity(valStr) {
+            const val = parseFloat(valStr);
             if (isNaN(val)) return 0;
             if (val >= 85) return 100;
             if (val >= 70) return 75;
             return 50;
         }
 
-        function scoreDER(derPercent) {
-            const val = parseFloat(derPercent);
+        function scoreDER(valStr) {
+            const val = parseFloat(valStr);
             if (isNaN(val)) return 0;
             if (val <= 10) return 100;
             if (val <= 20) return 75;
             return 50;
         }
 
-        function scoreQualityGates(gatesPercent) {
-            const val = parseFloat(gatesPercent);
+        function scoreQualityGates(valStr) {
+            const val = parseFloat(valStr);
             if (isNaN(val)) return 0;
             if (val >= 90) return 100;
             if (val >= 80) return 75;
             return 50;
         }
 
-        function scoreSecurity(securityValue) {
-            if (securityValue === "N/A" || securityValue === "nan") return 50; // Neutral
-            let val = securityValue === "Yes" ? 1.0 : parseFloat(securityValue);
+        function scoreSecurity(secVal) {
+            if (secVal === "N/A" || secVal === "nan") return 50;
+            let val = secVal === "Yes" ? 1.0 : parseFloat(secVal);
             if (isNaN(val)) return 50;
             if (val > 0.80) return 100;
             return 50;
@@ -731,13 +650,9 @@
             const directors = {
                 "North America": "Venkat Akkapeddi",
                 "Europe": "Marek Branka",
-                "Africa": "Marek Branka",
-                "Middle East": "TBD",
-                "LATAM": "TBD",
-                "Asia": "TBD",
-                "ANZ": "TBD"
+                "Africa": "Marek Branka"
             };
-            return directors[hubName] || "N/A";
+            return directors[hubName] || "TBD";
         }
 
         function calculateEEI(project) {
@@ -746,7 +661,6 @@
             const gateScore = scoreQualityGates(project.gates);
             const securityScore = scoreSecurity(project.security);
 
-            // Engineering Excellence Index = (Velocity × 0.15) + (Quality × 0.30) + (Gates × 0.30) + (Security × 0.25)
             const eei = (velocityScore * 0.15) + (qualityScore * 0.30) + (gateScore * 0.30) + (securityScore * 0.25);
 
             return {
@@ -775,13 +689,11 @@
             hubGrid.innerHTML = '';
 
             let greenCount = 0, amberCount = 0, redCount = 0, totalCount = 0;
-            let totalEEI = 0, totalProjects = 0;
 
             hubsData.forEach(hub => {
                 const hubCard = document.createElement('div');
                 hubCard.className = 'hub-card';
 
-                // Calculate hub average EEI
                 let hubEEISum = 0;
                 const projectsWithEEI = hub.projects_list.map(proj => ({
                     ...proj,
@@ -798,15 +710,12 @@
 
                 if (filteredProjects.length === 0) return;
 
-                // Count status
                 projectsWithEEI.forEach(proj => {
                     if (proj.eei.status === 'green') greenCount++;
                     else if (proj.eei.status === 'amber') amberCount++;
                     else redCount++;
                     totalCount++;
-                    totalEEI += proj.eei.total;
                 });
-                totalProjects += hub.projects_list.length;
 
                 const projectsHtml = filteredProjects.map(proj => `
                     <div class="project-item">
@@ -820,7 +729,7 @@
                         <div class="project-status">
                             <span class="eei-score ${proj.eei.status}-score">${proj.eei.total}</span>
                         </div>
-                        <a href="#" class="view-details" onclick="openProjectModal(event, '${proj.name}', '${proj.em}', '${hub.name}', ${proj.eei.total}, '${proj.velocity}', '${proj.der}', '${proj.gates}', '${proj.security}', '${proj.sfAccount}', '${proj.eei.velocity}', '${proj.eei.quality}', '${proj.eei.gates}', '${proj.eei.security}')">View</a>
+                        <a href="#" class="view-details" onclick="openProjectModal(event, '${proj.name}', '${proj.em}', '${hub.name}', ${proj.eei.total}, '${proj.velocity}', '${proj.der}', '${proj.gates}', '${proj.security}', '${proj.sfAccount}')">View</a>
                     </div>
                 `).join('');
 
@@ -832,15 +741,15 @@
                                     <span class="rag-dot ${hubEEIStatus}"></span>${hub.name}
                                 </div>
                                 <div class="hub-stats">
-                                    <div><a href="looker-engineering-community.html?hub=${encodeURIComponent(hub.name)}" style="color: #00D9D9; text-decoration: none; cursor: pointer; font-weight: 600;" onmouseover="this.style.textDecoration='underline'; this.style.color='#FFFFFF'" onmouseout="this.style.textDecoration='none'; this.style.color='#00D9D9'">👥 ${hub.engineers} Engineers</a></div>
+                                    <div>👥 ${hub.engineers} Engineers</div>
                                     <div>📊 ${hub.projects} Projects</div>
                                 </div>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <a href="skillset-viewer.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                <a href="skillset-viewer.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                     Hub Skill Matrix
                                 </a>
-                                <a href="hub-maturity-dashboard.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                <a href="hub-maturity-dashboard.html?hub=${encodeURIComponent(hub.name)}" style="color: white; text-decoration: none; padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap;">
                                     Hub Maturity
                                 </a>
                             </div>
@@ -860,16 +769,15 @@
                 hubGrid.appendChild(hubCard);
             });
 
-            // Update counts
+            // Update header badge counts
             document.getElementById('greenCount').textContent = greenCount;
             document.getElementById('amberCount').textContent = amberCount;
             document.getElementById('redCount').textContent = redCount;
             document.getElementById('allCount').textContent = totalCount;
             document.getElementById('totalProjects').textContent = totalCount;
-
         }
 
-        function openProjectModal(event, projectName, emName, hubName, eeiScore, velocity, der, gates, security, sfAccount, velScore, qualScore, gateScore, secScore) {
+        function openProjectModal(event, projectName, emName, hubName, eeiScore, velocity, der, gates, security, sfAccount) {
             event.preventDefault();
             const modal = document.getElementById('projectModal');
             const modalTitle = document.getElementById('modalTitle');
@@ -882,22 +790,10 @@
             modalBody.innerHTML = `
                 <div class="modal-section">
                     <div class="modal-section-title">Project Information</div>
-                    <div class="modal-row">
-                        <span>Hub</span>
-                        <strong>${hubName}</strong>
-                    </div>
-                    <div class="modal-row">
-                        <span>Engineering Director</span>
-                        <strong>${directorName}</strong>
-                    </div>
-                    <div class="modal-row">
-                        <span>Engineering Manager</span>
-                        <strong>${emName}</strong>
-                    </div>
-                    <div class="modal-row">
-                        <span>SF Account</span>
-                        <strong>${sfAccount}</strong>
-                    </div>
+                    <div class="modal-row"><span>Hub</span><strong>${hubName}</strong></div>
+                    <div class="modal-row"><span>Engineering Director</span><strong>${directorName}</strong></div>
+                    <div class="modal-row"><span>Engineering Manager</span><strong>${emName}</strong></div>
+                    <div class="modal-row"><span>SF Account</span><strong>${sfAccount}</strong></div>
                 </div>
 
                 <div class="modal-section">
@@ -907,111 +803,31 @@
                     </div>
                     <div style="margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 4px;">
                         <div style="font-weight: 600; margin-bottom: 10px; font-size: 12px; text-transform: uppercase; color: #666;">Metric Breakdown</div>
-                        <div class="metric-row">
-                            <span class="metric-name">Velocity (Commitment Rate)</span>
-                            <span class="metric-value">${velocity}</span>
-                            <span class="metric-weight" style="color: #27AE60;">15%</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-name">Quality (Defect Escape Rate)</span>
-                            <span class="metric-value">${der}</span>
-                            <span class="metric-weight" style="color: #F39C12;">30%</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-name">Quality Gates Score</span>
-                            <span class="metric-value">${gates}</span>
-                            <span class="metric-weight" style="color: #F39C12;">30%</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-name">Security Score</span>
-                            <span class="metric-value">${security}</span>
-                            <span class="metric-weight" style="color: #E74C3C;">25%</span>
-                        </div>
+                        <div class="metric-row"><span class="metric-name">Velocity (Commitment Rate)</span><span class="metric-value">${velocity}</span><span class="metric-weight" style="color: #27AE60;">15%</span></div>
+                        <div class="metric-row"><span class="metric-name">Quality (Defect Escape Rate)</span><span class="metric-value">${der}</span><span class="metric-weight" style="color: #F39C12;">30%</span></div>
+                        <div class="metric-row"><span class="metric-name">Quality Gates Score</span><span class="metric-value">${gates}</span><span class="metric-weight" style="color: #F39C12;">30%</span></div>
+                        <div class="metric-row"><span class="metric-name">Security Score</span><span class="metric-value">${security}</span><span class="metric-weight" style="color: #E74C3C;">25%</span></div>
                     </div>
                 </div>
-
             `;
 
             modal.classList.add('show');
         }
 
         function closeModal() {
-            const modal = document.getElementById('projectModal');
-            modal.classList.remove('show');
+            document.getElementById('projectModal').classList.remove('show');
         }
 
         window.addEventListener('click', function(event) {
             const modal = document.getElementById('projectModal');
-            if (event.target === modal) {
-                closeModal();
-            }
+            if (event.target === modal) closeModal();
         });
 
-        renderHubs();
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHubs();
+            updateEngineerMetrics();
+        });
     </script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLgLHary7wHkV2-ySU5fPnB5omcXF6gQ8EPzRISWLnYluaLRNC0-e8QWQc4Fy0pxLWf3FK6soIupJe/pub?output=csv';
-
-async function loadDashboardData() {
-  try {
-    const response = await fetch(CSV_URL);
-    const csvText = await response.text();
-
-    // Parse CSV into structured JS objects
-    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-    const data = parsed.data;
-
-    // Example data structure received from sheet:
-    // [{ "Hub": "North America", "Dev Quality": "87%", "DER": "12%" }, ...]
-
-    renderDashboard(data);
-  } catch (error) {
-    console.error("Error loading live metrics from Google Sheets:", error);
-  }
-}
-
-function renderDashboard(metrics) {
-  // Populate your DOM elements with metrics data
-  console.log("Loaded Sheet Data:", metrics);
-  // Call existing render/UI functions from your Claude-generated code here
-}
-
-// Auto-load on page start
-document.addEventListener('DOMContentLoaded', loadDashboardData);
-   // Replace with your published Skill Matrix Google Sheet CSV URL
-const SKILL_MATRIX_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs/pubhtml';
-
-async function updateEngineerMetrics() {
-  try {
-    const response = await fetch(SKILL_MATRIX_CSV_URL);
-    const csvText = await response.text();
-
-    // Parse CSV data
-    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-    const rows = parsed.data;
-
-    // Filter valid rows (assuming each row is an engineer)
-    const validEngineers = rows.filter(row => row['Engineer Name'] || row['Name'] || row['Hub']);
-    
-    // 1. Calculate Total Engineers
-    const totalEngineers = validEngineers.length;
-
-    // 2. Calculate Unique Hubs Count
-    const uniqueHubs = new Set(
-      validEngineers
-        .map(e => e['Hub'] || e['Profit Centre'])
-        .filter(Boolean)
-    ).size;
-
-    // 3. Update the DOM
-    document.getElementById('totalEngineers').innerText = totalEngineers.toLocaleString();
-    document.getElementById('totalHubs').innerText = `Across ${uniqueHubs} hubs`;
-
-  } catch (error) {
-    console.error('Failed to load Skill Matrix data:', error);
-  }
-}
-
-// Fetch on page initialization
-document.addEventListener('DOMContentLoaded', updateEngineerMetrics);
 </body>
 </html>
