@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
    <!-- Include PapaParse in your <head> -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="[https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js](https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js)"></script>
 
 <script>
   // Replace these with your published CSV links from Google Sheets
@@ -579,19 +579,20 @@
                 </div>
             </div>
 
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-label">Total Engineers</div>
-                    <div class="summary-value">696</div>
-                    <div class="summary-change">Across 7 hubs</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">Total Projects Tracked</div>
-                    <div class="summary-value" id="totalProjects">30</div>
-                    <div class="summary-change">With Index metrics</div>
-                </div>
-            </div>
-
+         <div class="summary-grid">
+    <div class="summary-card">
+        <div class="summary-label">Total Engineers</div>
+        <!-- Added id="totalEngineers" -->
+        <div class="summary-value" id="totalEngineers">--</div> 
+        <!-- Added id="totalHubs" -->
+        <div class="summary-change" id="totalHubs">Across -- hubs</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-label">Total Projects Tracked</div>
+        <div class="summary-value" id="totalProjects">30</div>
+        <div class="summary-change">With Index metrics</div>
+    </div>
+</div>
         </div>
 
         <div class="hub-section">
@@ -976,5 +977,41 @@ function renderDashboard(metrics) {
 
 // Auto-load on page start
 document.addEventListener('DOMContentLoaded', loadDashboardData);
+   // Replace with your published Skill Matrix Google Sheet CSV URL
+const SKILL_MATRIX_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSrhJ22gr8Emkjai4SnZ_ZQIuHplihFB3BfgS5ot-m-mB-tO99b-bt5FulKR8ZHRqvwx0VX-ei3kVGs/pubhtml';
+
+async function updateEngineerMetrics() {
+  try {
+    const response = await fetch(SKILL_MATRIX_CSV_URL);
+    const csvText = await response.text();
+
+    // Parse CSV data
+    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    const rows = parsed.data;
+
+    // Filter valid rows (assuming each row is an engineer)
+    const validEngineers = rows.filter(row => row['Engineer Name'] || row['Name'] || row['Hub']);
+    
+    // 1. Calculate Total Engineers
+    const totalEngineers = validEngineers.length;
+
+    // 2. Calculate Unique Hubs Count
+    const uniqueHubs = new Set(
+      validEngineers
+        .map(e => e['Hub'] || e['Profit Centre'])
+        .filter(Boolean)
+    ).size;
+
+    // 3. Update the DOM
+    document.getElementById('totalEngineers').innerText = totalEngineers.toLocaleString();
+    document.getElementById('totalHubs').innerText = `Across ${uniqueHubs} hubs`;
+
+  } catch (error) {
+    console.error('Failed to load Skill Matrix data:', error);
+  }
+}
+
+// Fetch on page initialization
+document.addEventListener('DOMContentLoaded', updateEngineerMetrics);
 </body>
 </html>
